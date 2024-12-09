@@ -104,10 +104,6 @@ MODULE_API MM::Device* CreateDevice(const char* deviceName)
     {
         return new CScanner(deviceName);
     }
-    else if (deviceStr.compare(0, strlen(g_MMirrorDeviceName), (std::string)g_MMirrorDeviceName) == 0)
-    {
-        return new CScanner(deviceName);  // this for compatibility with old config files
-    }
     else if (deviceStr.compare(0, strlen(g_PiezoDeviceName), (std::string)g_PiezoDeviceName) == 0)
     {
         return new CPiezo(deviceName);

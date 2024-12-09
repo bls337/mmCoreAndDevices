@@ -286,10 +286,10 @@ int CZStage::Initialize()
       speedTruth_ = hub_->IsDefinePresent(build, "SPEED TRUTH");
    }
 
-   // add single-axis properties if supported
+   // add single-axis properties if supported, requires SINGLEAXIS_FUNCTION module
    // (single-axis support existed prior pre-2.8 firmware, but now we have easier way to tell if it's present using axis properties
    //   and it wasn't used very much before SPIM)
-   if(build.vAxesProps[0] & BIT5)//      if(hub_->IsDefinePresent(build, g_Define_SINGLEAXIS_FUNCTION))
+   if (build.vAxesProps[0] & BIT5)
    {
       // copied from ASIMMirror.cpp
       pAct = new CPropertyAction (this, &CZStage::OnSAAmplitude);

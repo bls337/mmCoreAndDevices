@@ -24,8 +24,8 @@
 // BASED ON:      ASIStage.h, ASIFW1000.h, Arduino.h, and DemoCamera.h
 //
 
-#ifndef _ASITiger_H_
-#define _ASITiger_H_
+#ifndef ASITIGER_H
+#define ASITIGER_H
 
 #include <string>
 #include <vector>
@@ -50,6 +50,7 @@ using namespace std;
 // e.g. instead of "assert(foo() == 1);" should do "int tmp = foo(); assert(tmp==1);"
 //#define ASSERT_DEVICE_OK( result ) assert( DEVICE_OK == (result) )
 
+// TODO: convert to constexpr after testing if bitshifting math still works
 // some shortcuts for bit manipulations
 #define BIT0   0x01
 #define BIT1   0x02
@@ -60,52 +61,50 @@ using namespace std;
 #define BIT6   0x40
 #define BIT7   0x80
 
-//////////////////////////////////////////////////////////////////////////////
 // ASI-specific error codes and messages
-//
-#define ERR_UNKNOWN_POSITION         10002
-#define ERR_PORT_CHANGE_FORBIDDEN    10004
-#define ERR_SET_POSITION_FAILED      10005
-#define ERR_INVALID_STEP_SIZE        10006
-#define ERR_INVALID_MODE             10008
-#define ERR_UNRECOGNIZED_ANSWER      10009
+constexpr int ERR_UNKNOWN_POSITION = 10002;
+constexpr int ERR_PORT_CHANGE_FORBIDDEN = 10004;
+constexpr int ERR_SET_POSITION_FAILED = 10005;
+constexpr int ERR_INVALID_STEP_SIZE = 10006;
+constexpr int ERR_INVALID_MODE = 10008;
+constexpr int ERR_UNRECOGNIZED_ANSWER = 10009;
 const char* const g_Msg_ERR_UNRECOGNIZED_ANSWER = "Unrecognized serial answer from ASI device";
-#define ERR_UNSPECIFIED_ERROR        10010
-#define ERR_NOT_LOCKED               10011
-#define ERR_NOT_CALIBRATED           10012
-#define ERR_NOT_ENOUGH_AXES          10021   // if TigerComm gets back too few axes on BU X
+constexpr int ERR_UNSPECIFIED_ERROR = 10010;
+constexpr int ERR_NOT_LOCKED = 10011;
+constexpr int ERR_NOT_CALIBRATED = 10012;
+constexpr int ERR_NOT_ENOUGH_AXES = 10021; // if TigerComm gets back too few axes on BU X;
 const char* const g_Msg_ERR_NOT_ENOUGH_AXES = "Do not have any axes installed";
-#define ERR_TOO_LARGE_ADDRESSES      10022   // if we have addresses 0x81 and higher without new firmware
+constexpr int ERR_TOO_LARGE_ADDRESSES = 10022; // if we have addresses 0x81 and higher without new firmware;
 const char* const g_Msg_ERR_TOO_LARGE_ADDRESSES = "Need new firmware for more than 10 cards";
-#define ERR_INFO_COMMAND_NOT_SUPPORTED   10023   // can't receive output from INFO command because >1023 characters
+constexpr int ERR_INFO_COMMAND_NOT_SUPPORTED = 10023; // can't receive output from INFO command because >1023 characters;
 const char* const g_Msg_ERR_INFO_COMMAND_NOT_SUPPORTED = "Cannot use the INFO command due to Micro-Manager limitations";
-#define ERR_FILTER_WHEEL_NOT_READY   10030   // if filter wheel responds with error, e.g. it is not plugged in
+constexpr int ERR_FILTER_WHEEL_NOT_READY = 10030; // if filter wheel responds with error, e.g. it is not plugged in;
 const char* const g_Msg_ERR_FILTER_WHEEL_NOT_READY = "Filter wheel doesn't appear to be connected";
-#define ERR_FILTER_WHEEL_SPINNING    10031   // if filter wheel is spinning and try to do something with it
+constexpr int ERR_FILTER_WHEEL_SPINNING = 10031; // if filter wheel is spinning and try to do something with it;
 const char* const g_Msg_ERR_FILTER_WHEEL_SPINNING = "Filter wheel cannot be moved to position or settings changed while spinning";
-#define ERR_TIGER_DEV_NOT_SUPPORTED  10040
+constexpr auto ERR_TIGER_DEV_NOT_SUPPORTED = 10040;
 const char* const g_Msg_ERR_TIGER_DEV_NOT_SUPPORTED = "Device type not yet supported by Tiger device adapter";
-#define ERR_TIGER_PAIR_NOT_PRESENT   10041
+constexpr int ERR_TIGER_PAIR_NOT_PRESENT = 10041;
 const char* const g_Msg_ERR_TIGER_PAIR_NOT_PRESENT = "Axis should be present in pair";
-#define ERR_CRISP_NOT_CALIBRATED     10050
+constexpr int ERR_CRISP_NOT_CALIBRATED = 10050;
 const char* const g_Msg_ERR_CRISP_NOT_CALIBRATED = "CRISP is not calibrated.  Try focusing close to a coverslip and selecting 'Calibrate'";
-#define ERR_CRISP_NOT_LOCKED         10051
+constexpr int ERR_CRISP_NOT_LOCKED = 10051;
 const char* const g_Msg_ERR_CRISP_NOT_LOCKED = "The CRISP failed to lock";
 
-#define ERR_ASICODE_OFFSET 10100  // offset when reporting error number from controller
-#define ERR_UNKNOWN_COMMAND         10101
+constexpr int ERR_ASICODE_OFFSET = 10100; // offset when reporting error number from controller;
+constexpr int ERR_UNKNOWN_COMMAND = 10101;
 const char* const g_Msg_ERR_UNKNOWN_COMMAND = "Unknown serial command";
-#define ERR_UNKNOWN_AXIS            10102
+constexpr int ERR_UNKNOWN_AXIS = 10102;
 const char* const g_Msg_ERR_UNKNOWN_AXIS = "Unrecognized controller axis";
-#define ERR_MISSING_PARAM           10103
+constexpr int ERR_MISSING_PARAM = 10103;
 const char* const g_Msg_ERR_MISSING_PARAM = "Missing required parameter";
-#define ERR_PARAM_OUT_OF_RANGE      10104
+constexpr int ERR_PARAM_OUT_OF_RANGE = 10104;
 const char* const g_Msg_ERR_PARAM_OUT_OF_RANGE = "Parameter out of range";
-#define ERR_OPERATION_FAILED        10105
+constexpr int ERR_OPERATION_FAILED = 10105;
 const char* const g_Msg_ERR_OPERATION_FAILED = "Controller operation failed";
-#define ERR_UNDEFINED_ERROR         10106
+constexpr int ERR_UNDEFINED_ERROR = 10106;
 const char* const g_Msg_ERR_UNDEFINED_ERROR = "Undefined controller error";
-#define ERR_INVALID_ADDRESS         10107
+constexpr int ERR_INVALID_ADDRESS = 10107;
 const char* const g_Msg_ERR_INVALID_ADDRESS = "Invalid Tiger address (e.g. missing card)";
 
 
@@ -118,7 +117,6 @@ const char* const g_PortSwitchDeviceName =  "PortSwitch";
 const char* const g_TurretDeviceName =  "Turret";
 const char* const g_FWheelDeviceName =  "FilterWheel";
 const char* const g_ScannerDeviceName =  "Scanner";
-const char* const g_MMirrorDeviceName = "MicroMirror";  // deprecated
 const char* const g_PiezoDeviceName = "PiezoStage";
 const char* const g_CRISPDeviceName = "CRISPAFocus";
 const char* const g_LEDDeviceName = "LED";
@@ -155,10 +153,10 @@ const char* const g_SerialTerminatorFW = "\n\r";
 const char* const g_SerialTerminatorLine = "\r";
 const char* const g_SerialTerminatorOverall = "\n";
 const char* const g_SerialTerminatorMultiLine = "\r";
-const string g_EmptyAxisLetterStr = " ";     // single char but like convenience of strings
-const string g_EmptyCardAddressCode = " ";   // ascii 0x31 for '1' through ascii 0x39 for '9', then 0x81 upward (extended ascii)
-const string g_EmptyCardAddressStr = "00";   // hex representation of the address, eg 31..39, 81 upward
-const string g_EmptyCardAddressChar = "";    // Tiger address character (stored as string)
+const std::string g_EmptyAxisLetterStr = " ";     // single char but like convenience of strings
+const std::string g_EmptyCardAddressCode = " ";   // ascii 0x31 for '1' through ascii 0x39 for '9', then 0x81 upward (extended ascii)
+const std::string g_EmptyCardAddressStr = "00";   // hex representation of the address, eg 31..39, 81 upward
+const std::string g_EmptyCardAddressChar = "";    // Tiger address character (stored as string)
 const char g_NameInfoDelimiter = ':';
 
 // general device property names
@@ -778,18 +776,14 @@ const char* const g_DACMicronsPerMvYPropertyName = "MicronsPerMillivoltY"; // pr
 
 struct build_info_type
 {
-   string buildname;
+   std::string buildname;
    unsigned char numAxes;
-   vector<char> vAxesLetter;
-   vector<char> vAxesType;
-   vector<string> vAxesAddr;  // string to handle unprintable characters
-   vector<string> vAxesAddrHex;  // string for simplicity, logically it should be int though
-   vector<int> vAxesProps;
-   vector<string> defines;
+   std::vector<char> vAxesLetter;
+   std::vector<char> vAxesType;
+   std::vector<std::string> vAxesAddr;  // string to handle unprintable characters
+   std::vector<std::string> vAxesAddrHex;  // string for simplicity, logically it should be int though
+   std::vector<int> vAxesProps;
+   std::vector<std::string> defines;
 };
 
-// define names
-const char* const g_Define_SINGLEAXIS_FUNCTION = "SINGLEAXIS_FUNCTION";
-
-
-#endif //_ASITiger_H_
+#endif // ASITIGER_H

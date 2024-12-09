@@ -158,7 +158,7 @@ int CDAC::Initialize()
 
 	// add single-axis properties if supported
 	// Normally we check for version, but this card is always going to have v3.30 and above
-	if (build.vAxesProps[0] & BIT5)//     
+	if (build.vAxesProps[0] & BIT5)
 	{
 		// copied from ASIMMirror.cpp
 		pAct = new CPropertyAction(this, &CDAC::OnSAAmplitude);
