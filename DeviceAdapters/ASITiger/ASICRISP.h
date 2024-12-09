@@ -22,8 +22,8 @@
 // BASED ON:      ASIStage.h and others
 //
 
-#ifndef _ASICRISP_H_
-#define _ASICRISP_H_
+#ifndef ASICRISP_H
+#define ASICRISP_H
 
 #include "ASIPeripheralBase.h"
 #include "MMDevice.h"
@@ -36,12 +36,10 @@ public:
    ~CCRISP() { }
   
    // Device API
-   // ----------
    int Initialize();
    bool Busy();
 
    // AutoFocus API
-   // -------------
    int SetContinuousFocusing(bool state);
    int GetContinuousFocusing(bool& state);
    bool IsContinuousFocusLocked();
@@ -53,7 +51,6 @@ public:
    int SetOffset(double offset);
 
    // action interface
-   // ----------------
    int OnRefreshProperties (MM::PropertyBase* pProp, MM::ActionType eAct);
    int OnFocusState        (MM::PropertyBase* pProp, MM::ActionType eAct);
    int OnWaitAfterLock     (MM::PropertyBase* pProp, MM::ActionType eAct);
@@ -76,8 +73,8 @@ public:
    int OnDitherErrorLegacy(MM::PropertyBase* pProp, MM::ActionType eAct);
 
 private:
-   string axisLetter_;
-   string focusState_;
+   std::string axisLetter_;
+   std::string focusState_;
    long waitAfterLock_;
 
    int UpdateFocusState();
@@ -85,4 +82,4 @@ private:
    int ForceSetFocusState(string focusState);
 };
 
-#endif // end _ASICRISP_H_
+#endif // ASICRISP_H

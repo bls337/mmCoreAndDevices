@@ -22,8 +22,8 @@
 // BASED ON:      ASIStage.h and others
 //
 
-#ifndef _ASIFWheel_H_
-#define _ASIFWheel_H_
+#ifndef ASIFWHEEL_H
+#define ASIFWHEEL_H
 
 #include "ASIPeripheralBase.h"
 #include "MMDevice.h"
@@ -38,16 +38,13 @@ public:
    ~CFWheel() { }
   
    // Generic device API
-   // ----------
    int Initialize();
    bool Busy();
 
    // State device API
-   // -----------
    unsigned long GetNumberOfPositions() const { return numPositions_; }
 
    // action interface
-   // ----------------
    int OnSaveCardSettings(MM::PropertyBase* pProp, MM::ActionType eAct);
    int OnRefreshProperties(MM::PropertyBase* pProp, MM::ActionType eAct);
    int OnState       (MM::PropertyBase* pProp, MM::ActionType eAct);
@@ -61,13 +58,13 @@ public:
 private:
    unsigned int numPositions_;
    unsigned int curPosition_;
+   std::string wheelNumber_;
+   static std::string selectedWheel_; // which wheel is currently selected, shared among all instances of this class
    bool spinning_;
-   string wheelNumber_;
-   static string selectedWheel_; // which wheel is currently selected, shared among all instances of this class
 
    int SelectWheelOverride();
    int SelectWheel();
    void ForcePropertyRefresh();
 };
 
-#endif //_ASIFWheel_H_
+#endif // ASIFWHEEL_H

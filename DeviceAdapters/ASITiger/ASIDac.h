@@ -95,7 +95,7 @@ public:
 
 private:
 	double unitMult_;
-	string axisLetter_;
+	std::string axisLetter_;
 	double maxvolts_;
 	double minvolts_;
 	bool ring_buffer_supported_;
@@ -108,11 +108,6 @@ private:
 	int GetMinVolts(double &volts);
 	int SetSignalmv(double millivolts);
 	int GetSignalmv(double& millivolts);
-
-	
-
 };
-
-
 
 #endif//_ASIDAC_H_

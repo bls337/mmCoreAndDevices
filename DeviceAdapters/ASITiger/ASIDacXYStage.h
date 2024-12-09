@@ -22,8 +22,8 @@
 // BASED ON:      ASIStage.cpp and others
 //
 
-#ifndef _ASIDACXYStage_H_
-#define _ASIDACXYStage_H_
+#ifndef ASIDACXYSTAGE_H
+#define ASIDACXYSTAGE_H
 
 #include "ASIPeripheralBase.h"
 #include "MMDevice.h"
@@ -36,18 +36,15 @@ public:
 	~CDACXYStage() { }
 
 	// Device API
-	// ----------
 	int Initialize();
 	bool Busy() { return false; }
 
 	// DAC API
-	// ----------
 	// Note: added axisLetter to deal with multiple axes
 	int SetGateOpen(bool open, std::string axisLetter);
 	int GetGateOpen(bool& open, std::string axisLetter);
 
 	// XYStage API
-	// -----------
 	double GetStepSizeXUm() { return 1.0; }
 	double GetStepSizeYUm() { return 1.0; }
 	int GetPositionSteps(long& x, long& y);
@@ -75,7 +72,6 @@ public:
 	int GetLimitsUm(double& /*xMin*/, double& /*xMax*/, double& /*yMin*/, double& /*yMax*/) { return DEVICE_UNSUPPORTED_COMMAND; }
 
 	// action interface
-	// ----------------
 	int OnSaveCardSettings(MM::PropertyBase* pProp, MM::ActionType eAct);
 	int OnRefreshProperties(MM::PropertyBase* pProp, MM::ActionType eAct);
 	int OnConversionFactorX(MM::PropertyBase* pProp, MM::ActionType eAct);
@@ -172,4 +168,4 @@ private:
 	int GetMinVolts(double& volts, std::string axisLetter);
 };
 
-#endif // _ASIDACXYStage_H_
+#endif // ASIDACXYSTAGE_H

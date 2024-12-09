@@ -581,7 +581,6 @@ const char* const g_Channel3And6 = "output 3 and 6";
 const char* const g_Channel1And5 = "output 1 and 5";
 const char* const g_Channel2And6 = "output 2 and 6";
 
-
 // SPIM enums
 // which side first
 const char* const g_SPIMSideAFirst = "A";
