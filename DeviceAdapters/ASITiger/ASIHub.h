@@ -31,7 +31,6 @@
 #include "DeviceThreads.h"
 #include <string>
 
-using namespace std;
 
 ////////////////////////////////////////////////////////////////
 // *********** generic ASI comm class *************************
@@ -41,7 +40,6 @@ using namespace std;
 // can use it separately from TG-1000 somehow, but TigerComm
 // inherits from this class.
 ////////////////////////////////////////////////////////////////
-
 class ASIHub : public ASIBase<HubBase, ASIHub>
 {
 public:

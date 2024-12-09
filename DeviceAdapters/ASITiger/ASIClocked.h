@@ -29,7 +29,6 @@
 #include "MMDevice.h"
 #include "DeviceBase.h"
 
-using namespace std;
 
 class CClocked : public ASIPeripheralBase<CStateDeviceBase, CClocked>
 {

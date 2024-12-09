@@ -22,8 +22,8 @@
 // BASED ON:      ASIStage.h and others
 //
 
-#ifndef _ASIDAC_H_
-#define _ASIDAC_H_
+#ifndef ASIDAC_H
+#define ASIDAC_H
 
 #include "ASIPeripheralBase.h"
 #include "MMDevice.h"

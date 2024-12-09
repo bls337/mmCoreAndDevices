@@ -32,6 +32,10 @@
 #include <iostream>
 #include <string>
 
+
+using namespace std;
+
+
 CDACXYStage::CDACXYStage(const char* name) :
 	ASIPeripheralBase< ::CXYStageBase, CDACXYStage >(name),
 	axisLetterX_(g_EmptyAxisLetterStr),    // value determined by extended name

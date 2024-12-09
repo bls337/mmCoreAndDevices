@@ -206,7 +206,7 @@ private:
 
       unsigned int code;
       std::stringstream ss;
-      ss << hex << s;
+      ss << std::hex << s;
       ss >> code;
       if ((code >= 0x31 && code <= 0x39) || (code >= 0x81 && code <= 0xF5))
       {

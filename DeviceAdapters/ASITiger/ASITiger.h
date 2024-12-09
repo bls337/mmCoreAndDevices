@@ -31,12 +31,8 @@
 #include <vector>
 #include <iostream>
 
-using namespace std;
 
-
-//////////////////////////////////////////////////////////////////////////////
 // ASI-specific macros
-//
 
 // Use the name 'return_value' that is unlikely to appear within 'result'.
 #define RETURN_ON_MM_ERROR( result ) do { \

@@ -78,8 +78,8 @@ private:
    long waitAfterLock_;
 
    int UpdateFocusState();
-   int SetFocusState(string focusState);
-   int ForceSetFocusState(string focusState);
+   int SetFocusState(std::string focusState);
+   int ForceSetFocusState(std::string focusState);
 };
 
 #endif // ASICRISP_H
