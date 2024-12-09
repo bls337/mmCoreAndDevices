@@ -22,8 +22,8 @@
 // BASED ON:      ASIStage.h and others
 //
 
-#ifndef _ASIPMT_H_
-#define _ASIPMT_H_
+#ifndef ASIPMT_H
+#define ASIPMT_H
 
 #include "ASIPeripheralBase.h"
 #include "MMDevice.h"
@@ -52,22 +52,22 @@ public:
    int IsDASequenceable(bool& isSequenceable) const {isSequenceable = false; return DEVICE_OK;}
 
    // action interface
-   int OnSaveCardSettings     (MM::PropertyBase* pProp, MM::ActionType eAct);
-   int OnRefreshProperties    (MM::PropertyBase* pProp, MM::ActionType eAct);
-   int OnGain                 (MM::PropertyBase* pProp, MM::ActionType eAct);
-   int OnAverage              (MM::PropertyBase* pProp, MM::ActionType eAct);
-   int OnPMTSignal			  (MM::PropertyBase* pProp, MM::ActionType eAct);
-   int OnPMTOverload    	  (MM::PropertyBase* pProp, MM::ActionType eAct);
-   int OnOverloadReset        (MM::PropertyBase* pProp, MM::ActionType eAct);
+   int OnSaveCardSettings(MM::PropertyBase* pProp, MM::ActionType eAct);
+   int OnRefreshProperties(MM::PropertyBase* pProp, MM::ActionType eAct);
+   int OnGain(MM::PropertyBase* pProp, MM::ActionType eAct);
+   int OnAverage(MM::PropertyBase* pProp, MM::ActionType eAct);
+   int OnPMTSignal(MM::PropertyBase* pProp, MM::ActionType eAct);
+   int OnPMTOverload(MM::PropertyBase* pProp, MM::ActionType eAct);
+   int OnOverloadReset(MM::PropertyBase* pProp, MM::ActionType eAct);
 
 private:
    int channel_; 
    char channelAxisChar_;
-   string axisLetter_;
+   std::string axisLetter_;
    int gain_;
    int avg_length_;
    int UpdateGain();
    int UpdateAvg();
  };
 
-#endif //_ASIPMT_H_
+#endif // ASIPMT_H

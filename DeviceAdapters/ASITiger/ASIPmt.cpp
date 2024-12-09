@@ -31,17 +31,13 @@
 #include "DeviceBase.h"
 #include "MMDevice.h"
 #include <iostream>
-#include <cmath>
 #include <sstream>
 #include <string>
-#include <vector>
 
 using namespace std;
 
 
-///////////////////////////////////////////////////////////////////////////////
 // CPMT
-//
 CPMT::CPMT(const char* name) :
    ASIPeripheralBase< ::CSignalIOBase, CPMT >(name),
    channel_(1),
@@ -52,12 +48,15 @@ CPMT::CPMT(const char* name) :
    if (IsExtendedName(name))  // only set up these properties if we have the required information in the name
    {
       channel_= GetChannelFromExtName(name);
-	   axisLetter_ = GetAxisLetterFromExtName(name);
+      axisLetter_ = GetAxisLetterFromExtName(name);
    }
 
    //Pick AxisChar to use.
    switch(channel_)
    {
+   case 1:
+      channelAxisChar_ = 'X';
+      break;
    case 2:
       channelAxisChar_='Y';
       break;
@@ -73,7 +72,6 @@ CPMT::CPMT(const char* name) :
    case 6:
       channelAxisChar_='R';
       break;
-   case 1:
    default:
       channelAxisChar_='X';
       break;
@@ -148,7 +146,7 @@ int CPMT::SetGateOpen(bool open)
 {
 	ostringstream command; command.str("");
    if (open)
-      command << addressChar_ << "LOCK " << channelAxisChar_ ;
+      command << addressChar_ << "LK " << channelAxisChar_;
    else
    {
      // can't do opposite the reset
@@ -162,7 +160,7 @@ int CPMT::GetGateOpen(bool& open)
 {
    unsigned int val;
    ostringstream command; command.str("");
-   command << addressChar_ << "LOCK " << channelAxisChar_ << "?" ;
+   command << addressChar_ << "LK " << channelAxisChar_ << "?";
    // reply is 0 or 1 , 0 is overloaded , 1 is enabled
    RETURN_ON_MM_ERROR ( hub_->QueryCommandVerify(command.str(), ":A") );
    RETURN_ON_MM_ERROR ( hub_->ParseAnswerAfterPosition2(val) );
@@ -175,7 +173,7 @@ int CPMT::GetSignal(double& volts)
 {
    unsigned int val;
    ostringstream command; command.str("");
-   command << addressChar_ << "RDADC " << channelAxisChar_ << "?" ;
+   command << addressChar_ << "RA " << channelAxisChar_ << "?";
    // reply is 0 or 1 , 0 is overloaded , 1 is enabled
    RETURN_ON_MM_ERROR ( hub_->QueryCommandVerify(command.str(), ":A") );
    RETURN_ON_MM_ERROR ( hub_->ParseAnswerAfterPosition2(val) );
@@ -183,8 +181,8 @@ int CPMT::GetSignal(double& volts)
    return DEVICE_OK;
 }
 
-int CPMT::UpdateGain()
 // updates PMT gain device property via the controller
+int CPMT::UpdateGain()
 {
    ostringstream command; command.str("");
    ostringstream replyprefix; replyprefix.str("");
@@ -194,12 +192,11 @@ int CPMT::UpdateGain()
    RETURN_ON_MM_ERROR( hub_->QueryCommandVerify(command.str(), replyprefix.str()) );
    RETURN_ON_MM_ERROR( hub_->ParseAnswerAfterEquals(tmp) );
    gain_ = tmp;
-
    return DEVICE_OK;
 }
 
-int CPMT::UpdateAvg()
 // updates PMT average length property via the controller
+int CPMT::UpdateAvg()
 {
    ostringstream command; command.str("");
    ostringstream replyprefix; replyprefix.str("");
@@ -209,11 +206,9 @@ int CPMT::UpdateAvg()
    RETURN_ON_MM_ERROR( hub_->QueryCommandVerify(command.str(), replyprefix.str()) );
    RETURN_ON_MM_ERROR( hub_->ParseAnswerAfterEquals(tmp) );
    avg_length_ = tmp;
-
    return DEVICE_OK;
 }
 
-////////////////
 // action handlers
 
 int CPMT::OnSaveCardSettings(MM::PropertyBase* pProp, MM::ActionType eAct)
@@ -254,13 +249,12 @@ int CPMT::OnOverloadReset(MM::PropertyBase* pProp, MM::ActionType eAct)
       else if (tmpstr.compare(g_PMTOverloadDone) == 0)
          return DEVICE_OK;
 	  else if (tmpstr.compare(g_OnState) == 0)
-         command << addressChar_ << "LOCK " << channelAxisChar_ ;
+         command << addressChar_ << "LK " << channelAxisChar_;
       RETURN_ON_MM_ERROR( hub_->QueryCommandVerify(command.str(), ":A", (long)200) );  // note 200ms delay added
       pProp->Set(g_PMTOverloadDone);
    }
    return DEVICE_OK;
 }
-
 
 int CPMT::OnRefreshProperties(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
@@ -326,7 +320,7 @@ int CPMT::OnPMTSignal(MM::PropertyBase* pProp, MM::ActionType eAct)
    if (eAct == MM::BeforeGet || eAct == MM::AfterSet)
    {
       // always read
-      command << addressChar_ << "RDADC " << channelAxisChar_ << "?" ;
+      command << addressChar_ << "RA " << channelAxisChar_ << "?";
       RETURN_ON_MM_ERROR ( hub_->QueryCommandVerify(command.str(), ":A") );
       RETURN_ON_MM_ERROR ( hub_->ParseAnswerAfterPosition2(val) );
       if (!pProp->Set((long)val))
@@ -342,18 +336,22 @@ int CPMT::OnPMTOverload(MM::PropertyBase* pProp, MM::ActionType eAct)
    if (eAct == MM::BeforeGet || eAct == MM::AfterSet)
    {
       // always read
-      command << addressChar_ << "LOCK " << channelAxisChar_ << "?" ;
+      command << addressChar_ << "LK " << channelAxisChar_ << "?";
       RETURN_ON_MM_ERROR ( hub_->QueryCommandVerify(command.str(), ":A") );
       RETURN_ON_MM_ERROR ( hub_->ParseAnswerAfterPosition2(val) );
       if(val)
 	  {
-	  if (!pProp->Set(g_NoState))
-         return DEVICE_INVALID_PROPERTY_VALUE;
+         if (!pProp->Set(g_NoState))
+         {
+            return DEVICE_INVALID_PROPERTY_VALUE;
+         }
 	  }
 	  else
 	  {
-	  	  if (!pProp->Set(g_YesState))
-         return DEVICE_INVALID_PROPERTY_VALUE;
+          if (!pProp->Set(g_YesState))
+          {
+             return DEVICE_INVALID_PROPERTY_VALUE;
+          }
 	  }
    }
    return DEVICE_OK;
