@@ -38,7 +38,7 @@ class ASIPeripheralBase : public ASIBase<TDeviceBase, UConcreteDevice>
 public:
    ASIPeripheralBase(const char* name) :
       ASIBase<TDeviceBase, UConcreteDevice>(name),
-      hub_(NULL),
+      hub_(nullptr),
       addressString_(g_EmptyCardAddressStr),
       addressChar_(g_EmptyCardAddressChar),
       refreshProps_(false),

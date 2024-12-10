@@ -38,9 +38,7 @@ using namespace std;
 
 // shared properties not implemented for CRISP because as of mid-2017 only can have one per card
 
-///////////////////////////////////////////////////////////////////////////////
 // CCRISP
-//
 CCRISP::CCRISP(const char* name) :
    ASIPeripheralBase< ::CAutoFocusBase, CCRISP >(name),
    axisLetter_(g_EmptyAxisLetterStr),    // value determined by extended name
@@ -57,8 +55,6 @@ int CCRISP::Initialize()
 {
    // call generic Initialize first, this gets hub
    RETURN_ON_MM_ERROR( PeripheralInitialize() );
-
-
 
    // create MM description; this doesn't work during hardware configuration wizard but will work afterwards
    ostringstream command;
@@ -396,8 +392,6 @@ int CCRISP::SetFocusState(string focusState)
     return ForceSetFocusState(focusState);
 }
 
-
-////////////////
 // action handlers
 
 int CCRISP::OnRefreshProperties(MM::PropertyBase* pProp, MM::ActionType eAct)
@@ -418,8 +412,8 @@ int CCRISP::OnRefreshProperties(MM::PropertyBase* pProp, MM::ActionType eAct)
     return DEVICE_OK;
 }
 
-int CCRISP::OnFocusState(MM::PropertyBase* pProp, MM::ActionType eAct)
 // read this every time
+int CCRISP::OnFocusState(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
    if (eAct == MM::BeforeGet)
    {
@@ -674,16 +668,12 @@ int CCRISP::OnSum(MM::PropertyBase* pProp, MM::ActionType eAct)
 int CCRISP::OnOffset(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
     ostringstream command; command.str("");
-    //long tmp = 0;
     if (eAct == MM::BeforeGet)
     {
         if (!refreshProps_ && initialized_)
         {
             return DEVICE_OK;
         }
-        //command << addressChar_ << "LK Z?";
-        //RETURN_ON_MM_ERROR ( hub_->QueryCommandVerify(command.str(), ":A") );
-        //RETURN_ON_MM_ERROR ( hub_->ParseAnswerAfterPosition2(tmp) );
       
         double tmp;
         int ret= GetOffset(tmp);

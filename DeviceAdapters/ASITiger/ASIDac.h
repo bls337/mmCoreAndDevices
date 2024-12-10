@@ -110,4 +110,4 @@ private:
 	int GetSignalmv(double& millivolts);
 };
 
-#endif//_ASIDAC_H_
+#endif // ASIDAC_H
