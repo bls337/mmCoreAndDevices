@@ -39,9 +39,7 @@
 using namespace std;
 
 
-///////////////////////////////////////////////////////////////////////////////
 // CDAC
-//
 CDAC::CDAC(const char* name) :
 	ASIPeripheralBase< ::CSignalIOBase, CDAC >(name),
 	unitMult_(g_DACDefaultUnitMult),   // later will try to read actual setting
@@ -123,11 +121,9 @@ int CDAC::Initialize()
 	command << maxvolts_;
 	CreateProperty(g_DACMaxVoltsPropertyName, command.str().c_str(), MM::Float, true);
 	
-
 	command.str("");
 	command << minvolts_;
 	CreateProperty(g_DACMinVoltsPropertyName, command.str().c_str(), MM::Float, true);
-	
 
 	//DAC gate open or closed
 	pAct = new CPropertyAction(this, &CDAC::OnDACGate);
@@ -135,7 +131,6 @@ int CDAC::Initialize()
 	AddAllowedValue(g_DACGatePropertyName, g_OpenState);
 	AddAllowedValue(g_DACGatePropertyName, g_ClosedState);
 	UpdateProperty(g_DACGatePropertyName);
-
 
 	// filter cut-off frequency
 	pAct = new CPropertyAction(this, &CDAC::OnCutoffFreq);
@@ -150,7 +145,6 @@ int CDAC::Initialize()
 	UpdateProperty(g_DACVoltageName);
 
 	///////////////////// Optional Modules ////////////////////////////////////
-
 
    // get build info so we can add optional properties
 	build_info_type build;
@@ -243,11 +237,13 @@ int CDAC::Initialize()
 			CreateProperty(g_UseSequencePropertyName, g_NoState, MM::String, false, pAct);
 			AddAllowedValue(g_UseSequencePropertyName, g_NoState);
 			AddAllowedValue(g_UseSequencePropertyName, g_YesState);
+
 			ttl_trigger_enabled_ = false;
 
-			//Because DASequence API for SignalIO devices isn't exposed thru MMDEvices, we are adding a few extra properties to make this feature more accessible
+			//Because DASequence API for SignalIO devices isn't exposed through MMDevices, 
+			// we are adding a few extra properties to make this feature more accessible
 
-			//This prop lets user execute StartDASequence(), StopDASequence(),ClearDASequence(),SendDASequence()
+			// This prop lets user execute StartDASequence(), StopDASequence(),ClearDASequence(),SendDASequence()
 			pAct = new CPropertyAction(this, &CDAC::OnRBSequenceState);
 			CreateProperty(g_RBSequenceStatePropertyName, g_IdleState, MM::String, false, pAct);
 			AddAllowedValue(g_RBSequenceStatePropertyName, g_IdleState, 0);
@@ -262,7 +258,6 @@ int CDAC::Initialize()
 			pAct = new CPropertyAction(this, &CDAC::OnAddtoRBSequence);
 			CreateProperty(g_AddtoRBSequencePropertyName, "0", MM::Float, false, pAct);
 			SetPropertyLimits(g_AddtoRBSequencePropertyName, minvolts_*1000, maxvolts_ * 1000);
-
 		}
 
 	}
@@ -281,33 +276,26 @@ int CDAC::Initialize()
 		CreateProperty(g_TTLoutName, "0", MM::Integer, false, pAct);
 		SetPropertyLimits(g_TTLoutName, 0, 30);
 		UpdateProperty(g_TTLoutName);
-
 	}
 
-
-	////////////////////// Before we Bail /////////////////////////////////////
 	initialized_ = true;
 	return DEVICE_OK;
+}
 
-}//end of   CDAC::Initialize()
-
-
-int CDAC::SetSignalmv(double millivolts) {
-
+int CDAC::SetSignalmv(double millivolts)
+{
 	ostringstream command; command.str("");
 	command << "M " << axisLetter_ << "=" << millivolts * unitMult_;
 	return hub_->QueryCommandVerify(command.str(), ":A");
-
 }
 
-int CDAC::SetSignal(double volts) {
-
-
+int CDAC::SetSignal(double volts)
+{
 	return SetSignalmv(volts * 1000);
-
 }
 
-int CDAC::GetSignalmv(double &millivolts) {
+int CDAC::GetSignalmv(double &millivolts)
+{
 	ostringstream command; command.str("");
 	command << "W " << axisLetter_;
 	RETURN_ON_MM_ERROR(hub_->QueryCommandVerify(command.str(), ":A"));
@@ -316,22 +304,24 @@ int CDAC::GetSignalmv(double &millivolts) {
 	return DEVICE_OK;
 }
 
-int CDAC::GetSignal(double &volts) {
-
+int CDAC::GetSignal(double &volts)
+{
 	double mvolts;
-
 	RETURN_ON_MM_ERROR(GetSignalmv(mvolts));
 	volts = mvolts / 1000;
 	return DEVICE_OK;
 }
 
-int CDAC::GetLimits(double& minVolts, double& maxVolts) { minVolts = minvolts_; maxVolts = maxvolts_; return DEVICE_OK; };
+int CDAC::GetLimits(double& minVolts, double& maxVolts)
+{
+	minVolts = minvolts_;
+	maxVolts = maxvolts_;
+	return DEVICE_OK;
+}
 
-
-int CDAC::SetGateOpen(bool open) {
-
+int CDAC::SetGateOpen(bool open)
+{
 	ostringstream command;
-
 	if (open) {
 		command.str("");
 		command << "MC " << axisLetter_ << "+";
@@ -345,8 +335,8 @@ int CDAC::SetGateOpen(bool open) {
 	return DEVICE_OK;
 }
 
-int CDAC::GetGateOpen(bool &open) {
-
+int CDAC::GetGateOpen(bool &open)
+{
 	ostringstream command;
 	long tmp;
 	command.str("");
@@ -365,7 +355,6 @@ int CDAC::GetGateOpen(bool &open) {
 int CDAC::GetMaxVolts(double &volts)
 {
 	ostringstream command;
-
 	command.str("");
 	command << "SU " << axisLetter_ << "?";
 	RETURN_ON_MM_ERROR(hub_->QueryCommandVerify(command.str(), ":A"));
@@ -376,7 +365,6 @@ int CDAC::GetMaxVolts(double &volts)
 int CDAC::GetMinVolts(double &volts)
 {
 	ostringstream command;
-
 	command.str("");
 	command << "SL " << axisLetter_ << "?";
 	RETURN_ON_MM_ERROR(hub_->QueryCommandVerify(command.str(), ":A"));
@@ -384,10 +372,10 @@ int CDAC::GetMinVolts(double &volts)
 	return DEVICE_OK;
 }
 
-//////////////// Sequence Stuff/////////////////////////////
+// Sequence Stuff
 
-
-int CDAC::StartDASequence()// enables TTL triggering; doesn't actually start anything going on controller
+// enables TTL triggering; doesn't actually start anything going on controller
+int CDAC::StartDASequence()
 {
 	ostringstream command; command.str("");
 	if (!ttl_trigger_supported_)
@@ -405,8 +393,8 @@ int CDAC::StartDASequence()// enables TTL triggering; doesn't actually start any
 	return DEVICE_OK;
 }
 
-int CDAC::StopDASequence()
 // disables TTL triggering; doesn't actually stop anything already happening on controller
+int CDAC::StopDASequence()
 {
 	ostringstream command; command.str("");
 	if (!ttl_trigger_supported_)
@@ -430,6 +418,7 @@ int CDAC::ClearDASequence()
 	RETURN_ON_MM_ERROR(hub_->QueryCommandVerify(command.str(), ":A"));
 	return DEVICE_OK;
 }
+
 int CDAC::AddToDASequence(double voltage)
 {
 	if (!ttl_trigger_supported_)
@@ -439,7 +428,6 @@ int CDAC::AddToDASequence(double voltage)
 	sequence_.push_back(voltage);
 	return DEVICE_OK;
 }
-
 
 int CDAC::SendDASequence()
 {
@@ -456,63 +444,48 @@ int CDAC::SendDASequence()
 		command << "LD " << axisLetter_ << "=" << sequence_[i] * 1000 * unitMult_;
 		RETURN_ON_MM_ERROR(hub_->QueryCommandVerify(command.str(), ":A"));
 	}
-
 	return DEVICE_OK;
 }
 
-
-
-////////////////
 // action handlers
 
 int CDAC::OnDACVoltage(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
-
 	double tmp = 0.0;
 	if (eAct == MM::BeforeGet)
 	{
 		if (!refreshProps_ && initialized_)
 			return DEVICE_OK;
-
-
 		RETURN_ON_MM_ERROR(GetSignalmv(tmp));
 		pProp->Set(tmp);
 		return DEVICE_OK;
-
 	}
 	else if (eAct == MM::AfterSet) {
 		pProp->Get(tmp);
 		RETURN_ON_MM_ERROR(SetSignalmv(tmp));
-
-
 	}
 	return DEVICE_OK;
-}// end of OnDacVoltage
+}
 
 int CDAC::OnDACGate(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
-
 	bool gtmp;
 	if (eAct == MM::BeforeGet)
 	{
 		if (!refreshProps_ && initialized_)
 			return DEVICE_OK;
 
-
 		RETURN_ON_MM_ERROR(GetGateOpen(gtmp));
 
-		if (gtmp) {//true
-
+		if (gtmp)
+		{
 			pProp->Set(g_OpenState);
 		}
-		else {
-
+		else
+		{
 			pProp->Set(g_ClosedState);
 		}
-
-
 		return DEVICE_OK;
-
 	}
 	else if (eAct == MM::AfterSet) {
 		string tmpstr;
@@ -523,13 +496,10 @@ int CDAC::OnDACGate(MM::PropertyBase* pProp, MM::ActionType eAct)
 		else {
 			gtmp = false;
 		}
-
 		RETURN_ON_MM_ERROR(SetGateOpen(gtmp));
-
 	}
 	return DEVICE_OK;
-}// end of OnDacVoltage
-
+}
 
 int CDAC::OnDACMode(MM::PropertyBase* pProp, MM::ActionType eAct)
 {	//Will need controller restart for settings to take effect
@@ -583,8 +553,7 @@ int CDAC::OnDACMode(MM::PropertyBase* pProp, MM::ActionType eAct)
 		RETURN_ON_MM_ERROR(hub_->QueryCommandVerify(command.str(), ":A"));
 	}
 	return DEVICE_OK;
-}// end of OnDacMode
-
+}
 
 int CDAC::OnCutoffFreq(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
@@ -650,12 +619,10 @@ int CDAC::OnRefreshProperties(MM::PropertyBase* pProp, MM::ActionType eAct)
 	return DEVICE_OK;
 }
 
+// Single Axis Functions
 
-
-///////////////////////////////////// Single Axis Functions/////////////////////////////
-
+// special property, when set to "Yes" it creates a set of little-used properties that can be manipulated thereafter
 int CDAC::OnSAAdvanced(MM::PropertyBase* pProp, MM::ActionType eAct)
-// special property, when set to "yes" it creates a set of little-used properties that can be manipulated thereafter
 {
 	if (eAct == MM::BeforeGet)
 	{
@@ -878,8 +845,8 @@ int CDAC::OnSAPattern(MM::PropertyBase* pProp, MM::ActionType eAct)
 	return DEVICE_OK;
 }
 
-int CDAC::OnSAPatternByte(MM::PropertyBase* pProp, MM::ActionType eAct)
 // get every single time
+int CDAC::OnSAPatternByte(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
 	ostringstream command; command.str("");
 	ostringstream response; response.str("");
@@ -900,7 +867,6 @@ int CDAC::OnSAPatternByte(MM::PropertyBase* pProp, MM::ActionType eAct)
 	}
 	return DEVICE_OK;
 }
-
 
 int CDAC::OnSAClkSrc(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
@@ -1094,8 +1060,7 @@ int CDAC::OnSATTLPol(MM::PropertyBase* pProp, MM::ActionType eAct)
 	return DEVICE_OK;
 }
 
-/////////////////////////////////////// RING BUFFER //////////////////////////
-
+// RING BUFFER 
 
 int CDAC::OnRBMode(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
@@ -1231,8 +1196,6 @@ int CDAC::OnRBDelayBetweenPoints(MM::PropertyBase* pProp, MM::ActionType eAct)
 	return DEVICE_OK;
 }
 
-
-
 int CDAC::OnUseSequence(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
 	ostringstream command; command.str("");
@@ -1266,10 +1229,8 @@ int CDAC::OnRBSequenceState(MM::PropertyBase* pProp, MM::ActionType eAct) {
 		else if (tmpstr.compare(g_RBSequenceSendSeq) == 0)  RETURN_ON_MM_ERROR(SendDASequence());
 		
 		pProp->Set(g_DoneState);
-		
 	}
 	return DEVICE_OK;
-
 }
 
 int CDAC::OnAddtoRBSequence(MM::PropertyBase* pProp, MM::ActionType eAct) {
@@ -1279,16 +1240,13 @@ int CDAC::OnAddtoRBSequence(MM::PropertyBase* pProp, MM::ActionType eAct) {
 	else  if (eAct == MM::AfterSet) {
 		double tmp;
 		pProp->Get(tmp);
-
 		tmp = tmp / 1000; //to go from mv to volts
 		RETURN_ON_MM_ERROR(AddToDASequence(tmp));
-		
 	}
 	return DEVICE_OK;
-
 }
 
-////////////////////////////////////// TTL ////////////////////////////////
+// TTL 
 
 int CDAC::OnTTLin(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
@@ -1345,4 +1303,3 @@ int CDAC::OnTTLout(MM::PropertyBase* pProp, MM::ActionType eAct)
 	}
 	return DEVICE_OK;
 }
-
