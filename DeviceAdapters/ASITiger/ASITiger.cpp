@@ -40,12 +40,11 @@
 #include "ASILens.h"
 #include "ASIDac.h"
 #include "ASIDacXYStage.h"
-#include <cstdio>
-#include <string>
 #include "MMDevice.h"
 #include "DeviceBase.h"
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <vector>
 
 

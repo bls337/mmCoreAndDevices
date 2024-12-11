@@ -33,14 +33,10 @@
 #include <vector>
 #include <string>
 
-using namespace std;
 
-
-///////////////////////////////////////////////////////////////////////////////
 // CClocked
 // this is a superclass for any clocked devices (except filterwheels which use a different command set)
 //   including turrets and filter sliders
-//
 CClocked::CClocked(const char* name) :
    ASIPeripheralBase< ::CStateDeviceBase, CClocked >(name),
    numPositions_(0),  // will read actual number of positions
@@ -59,7 +55,7 @@ int CClocked::Initialize()
    // call generic Initialize first, this gets hub
    RETURN_ON_MM_ERROR( PeripheralInitialize() );
 
-   ostringstream command;
+   std::ostringstream command;
 
    // serial query to find out how many positions we have
    command.str("");
@@ -131,7 +127,7 @@ int CClocked::Initialize()
 
 bool CClocked::Busy()
 {
-   ostringstream command; command.str("");
+   std::ostringstream command; command.str("");
    if (FirmwareVersionAtLeast(2.7)) // can use more accurate RS <axis>?
    {
       command << "RS " << axisLetter_ << "?";
@@ -156,7 +152,7 @@ bool CClocked::Busy()
 
 int CClocked::OnState(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
-   ostringstream command; command.str("");
+   std::ostringstream command; command.str("");
    if (eAct == MM::BeforeGet)
    {
       pProp->Set((long)curPosition_);
@@ -182,7 +178,7 @@ int CClocked::OnLabel(MM::PropertyBase* pProp, MM::ActionType eAct)
    }
    else if (eAct == MM::AfterSet)
    {
-      string buf;
+      std::string buf;
       pProp->Get(buf);
       RETURN_ON_MM_ERROR ( SetPosition(buf.c_str()) );
    }
@@ -193,9 +189,9 @@ int CClocked::OnSaveJoystickSettings()
 // redoes the joystick settings so they can be saved using SS Z
 {
    long tmp;
-   string tmpstr;
-   ostringstream command; command.str("");
-   ostringstream response; response.str("");
+   std::string tmpstr;
+   std::ostringstream command; command.str("");
+   std::ostringstream response; response.str("");
    command << "J " << axisLetter_ << "?";
    response << ":A " << axisLetter_ << "=";
    RETURN_ON_MM_ERROR( hub_->QueryCommandVerify(command.str(), response.str()));
@@ -209,7 +205,7 @@ int CClocked::OnSaveJoystickSettings()
 
 int CClocked::OnRefreshProperties(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
-   string tmpstr;
+   std::string tmpstr;
    if (eAct == MM::AfterSet) {
       pProp->Get(tmpstr);
       if (tmpstr.compare(g_YesState) == 0)
@@ -222,8 +218,8 @@ int CClocked::OnRefreshProperties(MM::PropertyBase* pProp, MM::ActionType eAct)
 
 int CClocked::OnSaveCardSettings(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
-   string tmpstr;
-   ostringstream command; command.str("");
+   std::string tmpstr;
+   std::ostringstream command; command.str("");
    if (eAct == MM::AfterSet) {
       if (hub_->UpdatingSharedProperties())
          return DEVICE_OK;
@@ -254,8 +250,8 @@ int CClocked::OnSaveCardSettings(MM::PropertyBase* pProp, MM::ActionType eAct)
 
 int CClocked::OnJoystickSelect(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
-   ostringstream command; command.str("");
-   ostringstream response; response.str("");
+   std::ostringstream command; command.str("");
+   std::ostringstream response; response.str("");
    long tmp = 0;
    if (eAct == MM::BeforeGet)
    {
@@ -279,7 +275,7 @@ int CClocked::OnJoystickSelect(MM::PropertyBase* pProp, MM::ActionType eAct)
       // don't complain if value is unsupported, just leave as-is
    }
    else if (eAct == MM::AfterSet) {
-      string tmpstr;
+      std::string tmpstr;
       pProp->Get(tmpstr);
       if (tmpstr.compare(g_JSCode_0) == 0)
          tmp = 0;
@@ -302,10 +298,9 @@ int CClocked::OnJoystickSelect(MM::PropertyBase* pProp, MM::ActionType eAct)
 }
 
 
-///////////////////////////////////////////////////////////////////////////////
+// --------
 // CFSlider
 // mostly just inherits from CClocked, except description
-//
 CFSlider::CFSlider(const char* name) :
       CClocked(name)
 {
@@ -316,7 +311,7 @@ int CFSlider::Initialize()
 {
    RETURN_ON_MM_ERROR( CClocked::Initialize() );
 
-   ostringstream command;
+   std::ostringstream command;
 
    // create MM description; this doesn't work during hardware configuration wizard but will work afterwards
    command.str("");
@@ -327,10 +322,9 @@ int CFSlider::Initialize()
    return DEVICE_OK;
 }
 
-///////////////////////////////////////////////////////////////////////////////
+// -----------
 // CPortSwitch
 // mostly just inherits from CClocked, except description
-//
 CPortSwitch::CPortSwitch(const char* name) :
       CClocked(name)
 {
@@ -341,7 +335,7 @@ int CPortSwitch::Initialize()
 {
    RETURN_ON_MM_ERROR( CClocked::Initialize() );
 
-   ostringstream command;
+   std::ostringstream command;
 
    // create MM description; this doesn't work during hardware configuration wizard but will work afterwards
    command.str("");
@@ -352,10 +346,9 @@ int CPortSwitch::Initialize()
    return DEVICE_OK;
 }
 
-///////////////////////////////////////////////////////////////////////////////
+// -------
 // CTurret
 // mostly just inherits from CClocked, except description
-//
 CTurret::CTurret(const char* name) :
       CClocked(name)
 {
@@ -366,7 +359,7 @@ int CTurret::Initialize()
 {
    RETURN_ON_MM_ERROR( CClocked::Initialize() );
 
-   ostringstream command;
+   std::ostringstream command;
 
    // create MM description; this doesn't work during hardware configuration wizard but will work afterwards
    command.str("");

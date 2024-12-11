@@ -30,7 +30,6 @@
 #include "DeviceBase.h"
 #include "DeviceUtils.h"
 #include "DeviceThreads.h"
-#include <algorithm>
 #include <string>
 #include <vector>
 
