@@ -89,7 +89,7 @@ ASIHub::ASIHub() :
    AddAllowedValue(g_SerialTerminatorPropertyName, g_SerialTerminator_4);
 }
 
-int ASIHub::ClearComPort(void)
+int ASIHub::ClearComPort()
 {
    return PurgeComPort(port_.c_str());
 }
