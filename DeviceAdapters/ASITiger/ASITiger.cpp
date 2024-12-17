@@ -65,79 +65,79 @@ MODULE_API void InitializeModuleData()
 
 MODULE_API MM::Device* CreateDevice(const char* deviceName)
 {
-    std::string device = deviceName;
-    if (deviceName == 0)
+    if (deviceName == nullptr)
     {
-        return 0;
+        return nullptr;
     }
-    else if (device == g_TigerCommHubName)
+
+    const std::string name = deviceName;
+    
+    if (name == g_TigerCommHubName)
     {
         return new CTigerCommHub();
     }
-    else if (device == g_XYStageDeviceName)
+    else if (name == g_XYStageDeviceName)
     {
         return new CXYStage(deviceName);
     }
-    else if (device == g_ZStageDeviceName)
+    else if (name == g_ZStageDeviceName)
     {
         return new CZStage(deviceName);
     }
-    else if (device == g_FSliderDeviceName)
+    else if (name == g_FSliderDeviceName)
     {
         return new CFSlider(deviceName);
     }
-    else if (device == g_TurretDeviceName)
+    else if (name == g_TurretDeviceName)
     {
         return new CTurret(deviceName);
     }
-    else if (device == g_PortSwitchDeviceName)
+    else if (name == g_PortSwitchDeviceName)
     {
         return new CPortSwitch(deviceName);
     }
-    else if (device == g_FWheelDeviceName)
+    else if (name == g_FWheelDeviceName)
     {
         return new CFWheel(deviceName);
     }
-    else if (device == g_ScannerDeviceName)
+    else if (name == g_ScannerDeviceName)
     {
         return new CScanner(deviceName);
     }
-    else if (device == g_PiezoDeviceName)
+    else if (name == g_PiezoDeviceName)
     {
         return new CPiezo(deviceName);
     }
-    else if (device == g_CRISPDeviceName)
+    else if (name == g_CRISPDeviceName)
     {
         return new CCRISP(deviceName);
     }
-    else if (device == g_LEDDeviceName)
+    else if (name == g_LEDDeviceName)
     {
         return new CLED(deviceName);
     }
-    else if (device == g_PLogicDeviceName)
+    else if (name == g_PLogicDeviceName)
     {
         return new CPLogic(deviceName);
     }
-    else if (device == g_PMTDeviceName)
+    else if (name == g_PMTDeviceName)
     {
         return new CPMT(deviceName);
     }
-    else if (device == g_LensDeviceName)
+    else if (name == g_LensDeviceName)
     {
         return new CLens(deviceName);
     }
-    else if (device == g_DacXYStageDeviceName)
+    else if (name == g_DacXYStageDeviceName)
     {
         return new CDACXYStage(deviceName);
     }
-    else if (device == g_DacDeviceName)
+    else if (name == g_DacDeviceName)
     {
         return new CDAC(deviceName);
     }
-    else
-    {
-        return 0;
-    }
+
+    return nullptr;
 }
 
 MODULE_API void DeleteDevice(MM::Device* pDevice)
