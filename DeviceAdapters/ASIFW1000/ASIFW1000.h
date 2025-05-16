@@ -31,7 +31,6 @@
 #include "DeviceBase.h"
 #include "DeviceThreads.h"
 
-#include <map>
 #include <string>
 
 // Error codes
@@ -47,15 +46,6 @@ constexpr int ERR_UNRECOGNIZED_ANSWER = 10009;
 constexpr int ERR_UNSPECIFIED_ERROR = 10010;
 
 constexpr int ERR_OFFSET = 10100;
-
-// From ASIFW1000HUb
-constexpr int ERR_NOT_CONNECTED = 11002;
-constexpr int ERR_COMMAND_CANNOT_EXECUTE = 11003;
-constexpr int ERR_NO_ANSWER = 11004;
-constexpr int ERR_SETTING_WHEEL = 11005;
-constexpr int ERR_SETTING_VERBOSE_LEVEL = 11006;
-constexpr int ERR_SHUTTER_NOT_FOUND = 11007;
-constexpr int ERR_UNEXPECTED_ANSWER = 11008;
 
 // Use the name 'return_value' that is unlikely to appear within 'result'.
 #define RETURN_ON_MM_ERROR( result ) do { \

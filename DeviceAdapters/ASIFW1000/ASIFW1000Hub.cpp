@@ -6,7 +6,10 @@
 // DESCRIPTION:   ASIFW1000 hub module. Required for operation of all 
 //                ASIFW1000 devices
 //                
-// AUTHOR:        Nico Stuurman, nico@cmp.ucsf.edu 02/03/2007; additions by Jon Daniels (ASI) June 2019
+// AUTHOR:        Nico Stuurman, nico@cmp.ucsf.edu 02/03/2007
+//                additions by Jon Daniels (ASI) June 2019
+//                additions by Brandon Simpson (ASI) May 2025
+//
 // BASED ON:      TEHub.cpp by Nenad Amodaj
 //
 // COPYRIGHT:     University of California, San Francisco, 2006
@@ -26,22 +29,21 @@
 //                of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 //
 //                IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-//                CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,                   
-//                INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES.           
-                                                                                     
-#define _CRT_SECURE_NO_DEPRECATE
+//                CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+//                INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES.
+//
+
+#include "ASIFW1000Hub.h"
 
 #include "assert.h"
-#include <memory.h>
 #include <cstdlib>
-#include <sstream>
 #include <iostream>
+#include <memory.h>
 #include <string>
-#include "ASIFW1000Hub.h"
+#include <sstream>
 
 #include "DeviceUtils.h"
 
-using namespace std;
 
 ASIFW1000Hub::ASIFW1000Hub ()  :
 	oldProtocol_(false),
@@ -53,11 +55,6 @@ ASIFW1000Hub::ASIFW1000Hub ()  :
 ASIFW1000Hub::~ASIFW1000Hub()
 {
 }
-
-
-///////////////////////////////////////////////////////////////////////////////
-// Device commands
-///////////////////////////////////////////////////////////////////////////////
 
 int ASIFW1000Hub::GetVersion(MM::Device& device, MM::Core& core, char* version)
 {
@@ -103,7 +100,7 @@ int ASIFW1000Hub::GetVersion(MM::Device& device, MM::Core& core, char* version)
 
 int ASIFW1000Hub::SetVerboseMode(MM::Device& device, MM::Core& core, int level)
 {
-   ostringstream os;
+   std::ostringstream os;
    os << "VB " <<  level;
    int ret = ExecuteCommand(device, core, os.str().c_str());
    if (ret != DEVICE_OK)
@@ -131,7 +128,7 @@ int ASIFW1000Hub::SetFilterWheelPosition(MM::Device& device, MM::Core& core, int
       SetCurrentWheel(device, core, wheelNr);
 
    const char* command = "MP ";
-   ostringstream os;
+   std::ostringstream os;
    os << command <<  pos;
 
    // send command
@@ -201,7 +198,7 @@ int ASIFW1000Hub::GetCurrentWheel(MM::Device& device, MM::Core& core, int& wheel
 int ASIFW1000Hub::SetCurrentWheel(MM::Device& device, MM::Core& core, int wheelNr)
 {
    const char* command = "FW ";
-   ostringstream os;
+   std::ostringstream os;
    os << command <<  wheelNr;
 
    // send command
@@ -299,7 +296,7 @@ int ASIFW1000Hub::SetFilterWheelSpeed(MM::Device& device, MM::Core& core, int wh
       SetCurrentWheel(device, core, wheelNr);
 
    const char* command = "SV ";
-   ostringstream os;
+   std::ostringstream os;
    os << command <<  speed;
 
    // send command
@@ -355,7 +352,7 @@ int ASIFW1000Hub::SendFilterWheelCommand(MM::Device& device, MM::Core& core, int
 
 int ASIFW1000Hub::OpenShutter(MM::Device& device, MM::Core& core, int shutterNr)
 {
-   ostringstream os;
+   std::ostringstream os;
    os << "SO " << shutterNr;
    int ret =  ExecuteCommand(device, core, os.str().c_str());
    if (ret != DEVICE_OK)
@@ -370,7 +367,7 @@ int ASIFW1000Hub::OpenShutter(MM::Device& device, MM::Core& core, int shutterNr)
 
 int ASIFW1000Hub::CloseShutter(MM::Device& device, MM::Core& core, int shutterNr)
 {
-   ostringstream os;
+   std::ostringstream os;
    os << "SC " << shutterNr;
    int ret =  ExecuteCommand(device, core, os.str().c_str());
    if (ret != DEVICE_OK)
@@ -389,14 +386,14 @@ int ASIFW1000Hub::CloseShutter(MM::Device& device, MM::Core& core, int shutterNr
 int ASIFW1000Hub::GetShutterPosition(MM::Device& device, MM::Core& core, int shutterNr, bool& pos)
 {
    //ClearAllRcvBuf(device, core);
-   ostringstream os;
+   std::ostringstream os;
    os << "SQ " << shutterNr;
    int ret = ExecuteCommand(device, core, os.str().c_str());
    // analyze answer
    ret = core.GetSerialAnswer(&device, port_.c_str(), RCV_BUF_LENGTH, rcvBuf_, "\n\r");
    if (ret != DEVICE_OK)
       return ret;
-   string response = rcvBuf_;
+   std::string response = rcvBuf_;
 
    // If the answer is too short, there is likely no shutter card (we could do a better check)
    if (response.length() < 2)

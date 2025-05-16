@@ -23,32 +23,27 @@
 //                of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 //
 //                IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-//                CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,                   
-//                INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES.           
-//                                                                                     
-// AUTHOR: Nico Stuurman, nico@cmp.ucsf.edu, 02/02/2007; additions by Jon Daniels (ASI) June 2019
-//                                                                                   
-// Based on NikonTE2000 controller adapter by Nenad Amodaj                           
-// 
+//                CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+//                INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES.
 //
-#ifndef _ASIFW1000HUB_H_
-#define _ASIFW1000HUB_H_
+// AUTHOR:        Nico Stuurman, nico@cmp.ucsf.edu, 02/02/2007; Based on NikonTE2000 controller adapter by Nenad Amodaj
+//                additions by Jon Daniels (ASI) June 2019
+//                additions by Brandon Simpson (ASI) May 2025
+//
 
-//#include <deque>
-#include <map>
+#ifndef ASIFW1000HUB_H
+#define ASIFW1000HUB_H
+
 #include "MMDevice.h"
 
-/////////////////////////////////////////////////////////////////////////
 // Error codes
-//
-#define ERR_NOT_CONNECTED           11002
-#define ERR_COMMAND_CANNOT_EXECUTE  11003
-#define ERR_NO_ANSWER               11004
-#define ERR_SETTING_WHEEL           11005
-#define ERR_SETTING_VERBOSE_LEVEL   11006
-#define ERR_SHUTTER_NOT_FOUND       11007
-#define ERR_UNEXPECTED_ANSWER       11008
-
+constexpr int ERR_NOT_CONNECTED = 11002;
+constexpr int ERR_COMMAND_CANNOT_EXECUTE = 11003;
+constexpr int ERR_NO_ANSWER = 11004;
+constexpr int ERR_SETTING_WHEEL = 11005;
+constexpr int ERR_SETTING_VERBOSE_LEVEL = 11006;
+constexpr int ERR_SHUTTER_NOT_FOUND = 11007;
+constexpr int ERR_UNEXPECTED_ANSWER = 11008;
 
 enum CommandMode
 {
@@ -95,4 +90,4 @@ private:
    long activeWheel_;
 };
 
-#endif // _ASIFW1000HUB_H_
+#endif // ASIFW1000HUB_H

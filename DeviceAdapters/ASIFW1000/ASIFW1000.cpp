@@ -37,6 +37,7 @@
 #include <string>
 #include <math.h>
 
+
 const char* g_ASIFW1000Hub = "ASIFWController";
 const char* g_ASIFW1000FilterWheel = "ASIFilterWheel";
 const char* g_ASIFW1000FilterWheelSA = "ASIFilterWheelSA";
@@ -45,7 +46,6 @@ const char* g_ASIFW1000Shutter = "ASIShutter";
 const char* g_ASIFW1000ShutterNr = "ASIShutterNumber";
 const char* g_ASIFW1000ShutterType = "ASIShutterType";
 
-using namespace std;
 
 ASIFW1000Hub g_hub;
 
@@ -618,7 +618,7 @@ int FilterWheelSA::SelectWheel()
    bool done = false;
    int nrTriesLeft = 3;
    int ret;
-   ostringstream command; command.str("");
+   std::ostringstream command;
    command << "FW" << wheelNr_;
    while (!done && nrTriesLeft > 0)
    {
@@ -649,7 +649,7 @@ void FilterWheelSA::GetName(char* name) const
 
 int FilterWheelSA::Initialize()
 {
-   ostringstream command;
+   std::ostringstream command;
 
    // Name
    CreateProperty(MM::g_Keyword_Name, name_.c_str(), MM::String, true);
@@ -786,7 +786,7 @@ int FilterWheelSA::OnPort(MM::PropertyBase* pProp, MM::ActionType eAct)
 
 int FilterWheelSA::OnState(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
-   ostringstream command; command.str("");
+   std::ostringstream command;
    if (eAct == MM::BeforeGet)
    {
       pProp->Set((long)pos_);
@@ -824,7 +824,7 @@ int FilterWheelSA::OnWheelNr(MM::PropertyBase* pProp, MM::ActionType eAct)
 
 int FilterWheelSA::OnSpeedSetting(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
-   ostringstream command; command.str("");
+   std::ostringstream command;
    long tmp = 0;
    int tmp_int = 0;
    if (eAct == MM::BeforeGet)
@@ -1077,7 +1077,7 @@ int Shutter::OnType(MM::PropertyBase* pProp, MM::ActionType eAct)
    }
    else if (eAct == MM::AfterSet)
    {
-      string type;
+      std::string type;
       pProp->Get(shutterType_);
    }
    return DEVICE_OK;
