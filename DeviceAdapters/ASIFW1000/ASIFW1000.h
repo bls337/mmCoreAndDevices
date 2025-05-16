@@ -22,44 +22,40 @@
 //
 // AUTHOR:        Nico Stuurman (nico@cmp.ucsf.edu) based on code by Nenad Amodaj, April 2007
 //                additions by Jon Daniels (ASI) June 2019
+//                additions by Brandon Simpson (ASI) May 2025
 //
 
-#ifndef _ASIFW1000_H_
-#define _ASIFW1000_H_
+#ifndef ASIFW1000_H
+#define ASIFW1000_H
 
 #include "DeviceBase.h"
 #include "DeviceThreads.h"
-#include <string>
+
 #include <map>
+#include <string>
 
-//////////////////////////////////////////////////////////////////////////////
 // Error codes
-//
-
-// from Nico's code
-#define ERR_UNKNOWN_COMMAND          10002
-#define ERR_UNKNOWN_POSITION         10003
-#define ERR_HALT_COMMAND             10004
-#define ERR_CANNOT_CHANGE_PROPERTY   10005
-// eof from Nico's code
+constexpr int ERR_UNKNOWN_COMMAND = 10002;
+constexpr int ERR_UNKNOWN_POSITION = 10003;
+constexpr int ERR_HALT_COMMAND = 10004;
+constexpr int ERR_CANNOT_CHANGE_PROPERTY = 10005;
 
 // from Prior
-#define ERR_INVALID_STEP_SIZE        10006
-#define ERR_INVALID_MODE             10008
-#define ERR_UNRECOGNIZED_ANSWER      10009
-#define ERR_UNSPECIFIED_ERROR        10010
+constexpr int ERR_INVALID_STEP_SIZE = 10006;
+constexpr int ERR_INVALID_MODE = 10008;
+constexpr int ERR_UNRECOGNIZED_ANSWER = 10009;
+constexpr int ERR_UNSPECIFIED_ERROR = 10010;
 
-#define ERR_OFFSET 10100
+constexpr int ERR_OFFSET = 10100;
 
 // From ASIFW1000HUb
-#define ERR_NOT_CONNECTED           11002
-#define ERR_COMMAND_CANNOT_EXECUTE  11003
-#define ERR_NO_ANSWER               11004
-#define ERR_SETTING_WHEEL           11005
-#define ERR_SETTING_VERBOSE_LEVEL   11006
-#define ERR_SHUTTER_NOT_FOUND       11007
-#define ERR_UNEXPECTED_ANSWER       11008
-
+constexpr int ERR_NOT_CONNECTED = 11002;
+constexpr int ERR_COMMAND_CANNOT_EXECUTE = 11003;
+constexpr int ERR_NO_ANSWER = 11004;
+constexpr int ERR_SETTING_WHEEL = 11005;
+constexpr int ERR_SETTING_VERBOSE_LEVEL = 11006;
+constexpr int ERR_SHUTTER_NOT_FOUND = 11007;
+constexpr int ERR_UNEXPECTED_ANSWER = 11008;
 
 // Use the name 'return_value' that is unlikely to appear within 'result'.
 #define RETURN_ON_MM_ERROR( result ) do { \
@@ -78,7 +74,6 @@ public:
    ~Hub();
   
    // Device API
-   // ----------
    int Initialize();
    int Shutdown();
   
@@ -88,7 +83,6 @@ public:
    MM::DeviceDetectionStatus DetectDevice(void);
 
    // action interface
-   // ----------------
    int OnPort(MM::PropertyBase* pProp, MM::ActionType eAct);
 
 private:
@@ -134,27 +128,25 @@ public:
    FilterWheel();
    ~FilterWheel();
  
-   // MMDevice API                                                           
-   // ------------                                                           
-   int Initialize();                                                         
-   int Shutdown();                                                           
-                                                                             
-   void GetName(char* pszName) const;                                        
-   bool Busy();                                                              
-   unsigned long GetNumberOfPositions()const {return numPos_;}               
+   // MMDevice API
+   int Initialize();
+   int Shutdown();
+
+   void GetName(char* pszName) const;
+   bool Busy();
+   unsigned long GetNumberOfPositions()const {return numPos_;}
    unsigned long GetWheelNr() const {return wheelNr_;}
-                                                                             
-   // action interface                                                       
-   // ----------------                                                       
-   int OnState(MM::PropertyBase* pProp, MM::ActionType eAct);                
-   int OnWheelNr(MM::PropertyBase* pProp, MM::ActionType eAct);                
+
+   // action interface
+   int OnState(MM::PropertyBase* pProp, MM::ActionType eAct);
+   int OnWheelNr(MM::PropertyBase* pProp, MM::ActionType eAct);
    int OnSpeedSetting(MM::PropertyBase* pProp, MM::ActionType eAct);
    int OnSerialCommand(MM::PropertyBase* pProp, MM::ActionType eAct);
    int OnSerialResponse(MM::PropertyBase* pProp, MM::ActionType eAct);
-                                                                             
-private:                                                                     
+
+private:
    bool open_;
-   bool initialized_;                                                        
+   bool initialized_;
    std::string name_;  
    long  pos_;
    int wheelNr_;
@@ -169,7 +161,6 @@ public:
    ~FilterWheelSA();
 
    // MMDevice API
-   // ------------
    int Initialize();
    int Shutdown();
 
@@ -179,7 +170,6 @@ public:
    unsigned long GetWheelNr() const {return wheelNr_;}
 
    // action interface
-   // ----------------
    int OnPort(MM::PropertyBase* pProp, MM::ActionType eAct);
    int OnState(MM::PropertyBase* pProp, MM::ActionType eAct);
    int OnWheelNr(MM::PropertyBase* pProp, MM::ActionType eAct);
@@ -211,5 +201,4 @@ private:
 
 };
 
-
-#endif //_ASIFW1000_H_
+#endif // ASIFW1000_H

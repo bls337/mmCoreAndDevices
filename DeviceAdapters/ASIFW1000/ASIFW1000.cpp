@@ -26,16 +26,16 @@
 // AUTHOR:        Nico Stuurman (based on code by Nenad Amodaj), nico@cmp.ucsf.edu, April 2007
 //                automatic device detection by Karl Hoover
 //                additions by Jon Daniels (ASI) June 2019
+//                additions by Brandon Simpson (ASI) May 2025
 //
 
 #include "ASIFW1000.h"
 #include "ASIFW1000Hub.h"
+#include "ModuleInterface.h"
+
 #include <cstdio>
 #include <string>
 #include <math.h>
-#include "ModuleInterface.h"
-
-using namespace std;
 
 const char* g_ASIFW1000Hub = "ASIFWController";
 const char* g_ASIFW1000FilterWheel = "ASIFilterWheel";
@@ -49,45 +49,35 @@ using namespace std;
 
 ASIFW1000Hub g_hub;
 
-///////////////////////////////////////////////////////////////////////////////
-// Exported MMDevice API
-///////////////////////////////////////////////////////////////////////////////
-MODULE_API void InitializeModuleData()
-{
-   RegisterDevice(g_ASIFW1000Hub, MM::GenericDevice, "ASIFW1000 Controller");
-   RegisterDevice(g_ASIFW1000FilterWheel, MM::StateDevice, "ASI FilterWheel");
-   RegisterDevice(g_ASIFW1000FilterWheelSA, MM::StateDevice, "ASI FilterWheel SA");
-   RegisterDevice(g_ASIFW1000Shutter, MM::ShutterDevice, "ASI Shutter"); 
+// MMDevice API
+MODULE_API void InitializeModuleData() {
+    RegisterDevice(g_ASIFW1000Hub, MM::GenericDevice, "ASIFW1000 Controller");
+    RegisterDevice(g_ASIFW1000FilterWheel, MM::StateDevice, "ASI FilterWheel");
+    RegisterDevice(g_ASIFW1000FilterWheelSA, MM::StateDevice, "ASI FilterWheel SA");
+    RegisterDevice(g_ASIFW1000Shutter, MM::ShutterDevice, "ASI Shutter");
 }
 
-MODULE_API MM::Device* CreateDevice(const char* deviceName)
-{
-   if (deviceName == 0)
-      return 0;
+MODULE_API MM::Device* CreateDevice(const char* deviceName) {
+    if (deviceName == nullptr) {
+        return nullptr;
+    }
 
-   if (strcmp(deviceName, g_ASIFW1000Hub) == 0)
-   {
-      return new Hub();
-   }
-   else if (strcmp(deviceName, g_ASIFW1000FilterWheel) == 0 )
-   {
-      return new FilterWheel();
-   }
-   else if (strcmp(deviceName, g_ASIFW1000FilterWheelSA) == 0 )
-   {
-      return new FilterWheelSA();
-   }
-   else if (strcmp(deviceName, g_ASIFW1000Shutter) == 0 )
-   {
-      return new Shutter();
-   }
+    const std::string name = deviceName;
+    if (name == g_ASIFW1000Hub) {
+        return new Hub();
+    } else if (name == g_ASIFW1000FilterWheel) {
+        return new FilterWheel();
+    } else if (name == g_ASIFW1000FilterWheelSA) {
+        return new FilterWheelSA();
+    } else if (name == g_ASIFW1000Shutter) {
+        return new Shutter();
+    }
 
-   return 0;
+    return nullptr;
 }
 
-MODULE_API void DeleteDevice(MM::Device* pDevice)
-{
-   delete pDevice;
+MODULE_API void DeleteDevice(MM::Device* pDevice) {
+    delete pDevice;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -102,8 +92,8 @@ Hub::Hub() :
 
    // custom error messages
    SetErrorText(ERR_COMMAND_CANNOT_EXECUTE, "Command cannot be executed");
-   SetErrorText(ERR_NO_ANSWER, "No answer received.  Is the FW1000 controller connected?  If so, try increasing the AnswerTimeout of the serial port.");
-   SetErrorText(ERR_NOT_CONNECTED, "No answer received.  Is the FW1000 controller connected?  If so, try increasing the AnswerTimeout of the serial port.");
+   SetErrorText(ERR_NO_ANSWER, "No answer received. Is the FW1000 controller connected? If so, try increasing the AnswerTimeout of the serial port.");
+   SetErrorText(ERR_NOT_CONNECTED, "No answer received. Is the FW1000 controller connected? If so, try increasing the AnswerTimeout of the serial port.");
 
    // create pre-initialization properties
    // ------------------------------------
@@ -111,7 +101,6 @@ Hub::Hub() :
    // Port
    CPropertyAction* pAct = new CPropertyAction (this, &Hub::OnPort);
    CreateProperty(MM::g_Keyword_Port, "Undefined", MM::String, false, pAct, true);
-
 }
 
 Hub::~Hub()
@@ -203,9 +192,6 @@ MM::DeviceDetectionStatus Hub::DetectDevice(void)
    }
    return result;
 }
-
-
-
 
 int Hub::Initialize()
 {
@@ -305,8 +291,6 @@ FilterWheel::FilterWheel () :
 {
    InitializeDefaultErrorMessages();
 
-   // Todo: Add custom messages
-   //
    // create pre-initialization properties
    // ------------------------------------
 
@@ -575,8 +559,6 @@ FilterWheelSA::FilterWheelSA () :
 {
    InitializeDefaultErrorMessages();
 
-   // Todo: Add custom messages
-   //
    // create pre-initialization properties
    // ------------------------------------
 
@@ -590,7 +572,6 @@ FilterWheelSA::FilterWheelSA () :
    // Port
    pAct = new CPropertyAction (this, &FilterWheelSA::OnPort);
    CreateProperty(MM::g_Keyword_Port, "Undefined", MM::String, false, pAct, true);
-
 }
 
 int FilterWheelSA::ClearComPort(void)
@@ -903,7 +884,6 @@ int FilterWheelSA::OnSerialResponse(MM::PropertyBase* pProp, MM::ActionType eAct
 }
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 // ASIFW1000 Shutter
 ///////////////////////////////////////////////////////////////////////////////
@@ -917,8 +897,6 @@ Shutter::Shutter () :
    InitializeDefaultErrorMessages();
    SetErrorText(ERR_SHUTTER_NOT_FOUND, "Shutter was not found.  Is the ASI shutter controller attached?");
 
-   // Todo: Add custom messages
-   //
    // Shutter Nr (0 or 1)
    CPropertyAction* pAct = new CPropertyAction (this, &Shutter::OnShutterNr);
    CreateProperty(g_ASIFW1000ShutterNr, "0", MM::Integer, false, pAct, true);
@@ -1015,7 +993,6 @@ int Shutter::Shutdown()
 
 int Shutter::SetOpen(bool open)
 {
-   
    if (shutterType_ == "Normally Closed")
       open = !open;
 
@@ -1036,7 +1013,6 @@ int Shutter::SetOpen(bool open)
 
 int Shutter::GetOpen(bool &open)
 {
-
    // Check current state of shutter: 
    int ret = g_hub.GetShutterPosition(*this, *GetCoreCallback(), shutterNr_, open);
    if (DEVICE_OK != ret)
