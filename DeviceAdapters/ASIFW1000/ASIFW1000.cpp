@@ -64,7 +64,7 @@ MODULE_API MM::Device* CreateDevice(const char* deviceName) {
 
     const std::string name = deviceName;
     if (name == g_ASIFW1000Hub) {
-        return new Hub();
+        return new ASIFWHub();
     } else if (name == g_ASIFW1000FilterWheel) {
         return new FilterWheel();
     } else if (name == g_ASIFW1000FilterWheelSA) {
@@ -80,184 +80,173 @@ MODULE_API void DeleteDevice(MM::Device* pDevice) {
     delete pDevice;
 }
 
-///////////////////////////////////////////////////////////////////////////////
 // ASIFW1000 Hub
-///////////////////////////////////////////////////////////////////////////////
 
-Hub::Hub() :
-   initialized_(false),
-   port_("Undefined")
-{
-   InitializeDefaultErrorMessages();
+ASIFWHub::ASIFWHub() :
+    initialized_(false),
+    port_("Undefined") {
 
-   // custom error messages
-   SetErrorText(ERR_COMMAND_CANNOT_EXECUTE, "Command cannot be executed");
-   SetErrorText(ERR_NO_ANSWER, "No answer received. Is the FW1000 controller connected? If so, try increasing the AnswerTimeout of the serial port.");
-   SetErrorText(ERR_NOT_CONNECTED, "No answer received. Is the FW1000 controller connected? If so, try increasing the AnswerTimeout of the serial port.");
+    InitializeDefaultErrorMessages();
 
-   // create pre-initialization properties
-   // ------------------------------------
+    // custom error messages
+    SetErrorText(ERR_COMMAND_CANNOT_EXECUTE, "Command cannot be executed");
+    SetErrorText(ERR_NO_ANSWER, "No answer received. Is the FW1000 controller connected? If so, try increasing the AnswerTimeout of the serial port.");
+    SetErrorText(ERR_NOT_CONNECTED, "No answer received. Is the FW1000 controller connected? If so, try increasing the AnswerTimeout of the serial port.");
 
-   // Port
-   CPropertyAction* pAct = new CPropertyAction (this, &Hub::OnPort);
-   CreateProperty(MM::g_Keyword_Port, "Undefined", MM::String, false, pAct, true);
+    // create pre-initialization properties
+    // ------------------------------------
+
+    // Port
+    CPropertyAction* pAct = new CPropertyAction (this, &ASIFWHub::OnPort);
+    CreateProperty(MM::g_Keyword_Port, "Undefined", MM::String, false, pAct, true);
 }
 
-Hub::~Hub()
-{
-   Shutdown();
+ASIFWHub::~ASIFWHub() {
+    Shutdown();
 }
 
-void Hub::GetName(char* name) const
-{
-   //assert(name_.length() < CDeviceUtils::GetMaxStringLength());   
-   CDeviceUtils::CopyLimitedString(name, g_ASIFW1000Hub);
+void ASIFWHub::GetName(char* name) const {
+    CDeviceUtils::CopyLimitedString(name, g_ASIFW1000Hub);
 }
 
-bool Hub::Busy()
-{
-   return false;
+bool ASIFWHub::Busy() {
+    return false;
 }
 
-bool Hub::SupportsDeviceDetection(void)
-{
-   return true;
+bool ASIFWHub::SupportsDeviceDetection(void) {
+    return true;
 }
 
-MM::DeviceDetectionStatus Hub::DetectDevice(void)
-{
-   // all conditions must be satisfied...
-   MM::DeviceDetectionStatus result = MM::Misconfigured;
-   char answerTO[MM::MaxStrLength];
+// Detect devices in the Hardware Configuration Wizard when you click "Scan Ports".
+MM::DeviceDetectionStatus ASIFWHub::DetectDevice(void) {
+    char savedTimeout[MM::MaxStrLength];
+    MM::DeviceDetectionStatus result = MM::Misconfigured;
 
-   try
-   {
-      std::string portLowerCase = port_;
-      for( std::string::iterator its = portLowerCase.begin(); its != portLowerCase.end(); ++its)
-      {
-         *its = (char)tolower(*its);
-      }
-      if( 0< portLowerCase.length() &&  0 != portLowerCase.compare("undefined")  && 0 != portLowerCase.compare("unknown") )
-      {
-         result = MM::CanNotCommunicate;
+    try {
+        // lowercase copy of port name
+        std::string portLower = port_;
+        for (char& c : portLower) {
+            c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+        }
 
-         // record the default answer time out
-         GetCoreCallback()->GetDeviceProperty(port_.c_str(), "AnswerTimeout", answerTO);
+        // skip invalid ports
+        if (portLower.empty() || portLower == "undefined" || portLower == "unknown") {
+            return result;
+        }
 
-         // device specific default communication parameters
-         // for ASI FW
-         GetCoreCallback()->SetDeviceProperty(port_.c_str(), MM::g_Keyword_Handshaking, "Off");
-         GetCoreCallback()->SetDeviceProperty(port_.c_str(), MM::g_Keyword_StopBits, "1");
-         GetCoreCallback()->SetDeviceProperty(port_.c_str(), "AnswerTimeout", "500.0");
-         GetCoreCallback()->SetDeviceProperty(port_.c_str(), "DelayBetweenCharsMs", "0");
-         MM::Device* pS = GetCoreCallback()->GetDevice(this, port_.c_str());
+        result = MM::CanNotCommunicate;
 
-         std::vector< std::string> possibleBauds;
-         possibleBauds.push_back("115200");
-         possibleBauds.push_back("28800");         
-         possibleBauds.push_back("19200");
-         possibleBauds.push_back("9600");
+        // store the original timeout
+        GetCoreCallback()->GetDeviceProperty(port_.c_str(), "AnswerTimeout", savedTimeout);
 
+        // device specific default communication parameters for ASIFW1000
+        GetCoreCallback()->SetDeviceProperty(port_.c_str(), MM::g_Keyword_Handshaking, "Off");
+        GetCoreCallback()->SetDeviceProperty(port_.c_str(), MM::g_Keyword_StopBits, "1");
+        GetCoreCallback()->SetDeviceProperty(port_.c_str(), "AnswerTimeout", "500.0");
+        GetCoreCallback()->SetDeviceProperty(port_.c_str(), "DelayBetweenCharsMs", "0");
 
-         for( std::vector< std::string>::iterator bit = possibleBauds.begin(); bit!= possibleBauds.end(); ++bit )
-         {
-            GetCoreCallback()->SetDeviceProperty(port_.c_str(), MM::g_Keyword_BaudRate, (*bit).c_str() );
+        MM::Device* pS = GetCoreCallback()->GetDevice(this, port_.c_str());
+
+        // check all possible baud rates for the device
+        for (const long baudRate : baudRates_) {
+            GetCoreCallback()->SetDeviceProperty(port_.c_str(), MM::g_Keyword_BaudRate, std::to_string(baudRate).c_str());
             pS->Initialize();
             PurgeComPort(port_.c_str());
-            // Version
+
+            // check version
             char version[256];
             int ret = g_hub.GetVersion(*this, *GetCoreCallback(), version);
-            if( DEVICE_OK != ret )
-            {
-               LogMessageCode(ret,true);
+            if (ret != DEVICE_OK) {
+                LogMessageCode(ret, true);
+            } else {
+                // success: device responded to the version command
+                result = MM::CanCommunicate;
             }
-            else
-            {
-               // to succeed must reach here....
-               result = MM::CanCommunicate;
-            }
+
             pS->Shutdown();
+
             CDeviceUtils::SleepMs(300);
-            if( MM::CanCommunicate == result)
-               break;
-         }
-         // always restore the AnswerTimeout to the default
-         GetCoreCallback()->SetDeviceProperty(port_.c_str(), "AnswerTimeout", answerTO);
 
-      }
-   }
-   catch(...)
-   {
-      LogMessage("Exception in DetectDevice!",false);
-   }
-   return result;
+            if (MM::CanCommunicate == result) {
+                break;
+            }
+        }
+
+        // restore timeout
+        GetCoreCallback()->SetDeviceProperty(port_.c_str(), "AnswerTimeout", savedTimeout);
+
+    } catch(...) {
+        LogMessage("Exception in DetectDevice!", false);
+    }
+
+    return result;
 }
 
-int Hub::Initialize()
-{
-   // Ensure a serial port has been set -- otherwise return an error.
-   if (! g_hub.IsConnected())
-      return DEVICE_ERR;
+int ASIFWHub::Initialize() {
+    // Ensure a serial port has been set -- otherwise return an error.
+    if (!g_hub.IsConnected()) {
+        return DEVICE_ERR;
+    }
 
-   // set property list
-   // -----------------
-   
-   // Name
-   int ret = CreateProperty(MM::g_Keyword_Name, g_ASIFW1000Hub, MM::String, true);
-   if (DEVICE_OK != ret)
-      return ret;
+    // Name
+    int ret = CreateProperty(MM::g_Keyword_Name, g_ASIFW1000Hub, MM::String, true);
+    if (DEVICE_OK != ret) {
+        return ret;
+    }
 
-   // Description
-   ret = CreateProperty(MM::g_Keyword_Description, "ASIFW1000 controller", MM::String, true);
-   if (DEVICE_OK != ret)
-      return ret;
+    // Description
+    ret = CreateProperty(MM::g_Keyword_Description, "ASIFW1000 controller", MM::String, true);
+    if (DEVICE_OK != ret) {
+        return ret;
+    }
 
-   // Version
-   char version[256];
-   ret = g_hub.GetVersion(*this, *GetCoreCallback(), version);
-   if (DEVICE_OK != ret)
-      return ret;
-   ret = CreateProperty("Firmware version", version, MM::String, true);
-   if (DEVICE_OK != ret)
-      return ret;
+    // Version
+    char version[256];
+    ret = g_hub.GetVersion(*this, *GetCoreCallback(), version);
+    if (DEVICE_OK != ret) {
+        return ret;
+    }
+    ret = CreateProperty("Firmware version", version, MM::String, true);
+    if (DEVICE_OK != ret) {
+        return ret;
+    }
 
-   // Set verbose level to 6 to speed stuff up
-   ret = g_hub.SetVerboseMode(*this, *GetCoreCallback(), 6);
-   if (DEVICE_OK != ret)
-      return ret;
+    // Set verbose level to 6 to speed stuff up
+    ret = g_hub.SetVerboseMode(*this, *GetCoreCallback(), 6);
+    if (DEVICE_OK != ret) {
+        return ret;
+    }
 
-   // Enquire about the current wheel, this is mainly to set the variable activeWheel_, private to g_hub.
-   int wheelNr;
-   ret = g_hub.GetCurrentWheel(*this, *GetCoreCallback(), wheelNr);
-   if (DEVICE_OK != ret)
-      return ret;
+    // Enquire about the current wheel, this is mainly to set the variable activeWheel_, private to g_hub.
+    int wheelNr;
+    ret = g_hub.GetCurrentWheel(*this, *GetCoreCallback(), wheelNr);
+    if (DEVICE_OK != ret) {
+        return ret;
+    }
 
-   ret = UpdateStatus();
-   if (ret != DEVICE_OK)
-      return ret;
+    ret = UpdateStatus();
+    if (ret != DEVICE_OK) {
+        return ret;
+    }
 
-   initialized_ = true;
-   
-   return DEVICE_OK;
+    initialized_ = true;
+    return DEVICE_OK;
 }
 
-int Hub::Shutdown()
-{
-   if (initialized_)
-   {
-      initialized_ = false;
-   }
-   return DEVICE_OK;
+int ASIFWHub::Shutdown() {
+    if (initialized_) {
+        initialized_ = false;
+    }
+    return DEVICE_OK;
 }
 
-///////////////////////////////////////////////////////////////////////////////
 // Action handlers
-///////////////////////////////////////////////////////////////////////////////
+
 /*
  * Sets the Serial Port to be used.
  * Should be called before initialization
  */
-int Hub::OnPort(MM::PropertyBase* pProp, MM::ActionType eAct)
+int ASIFWHub::OnPort(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
    if (eAct == MM::BeforeGet)
    {
@@ -278,11 +267,10 @@ int Hub::OnPort(MM::PropertyBase* pProp, MM::ActionType eAct)
    return DEVICE_OK;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////
 // ASIFW1000 FilterWheel
-///////////////////////////////////////////////////////////////////////////////
-FilterWheel::FilterWheel () :
+
+FilterWheel::FilterWheel() :
+   open_(false),
    initialized_ (false),
    name_ (g_ASIFW1000FilterWheel),
    pos_ (0),
@@ -297,10 +285,8 @@ FilterWheel::FilterWheel () :
    // FilterWheel Nr (0 or 1)
    CPropertyAction* pAct = new CPropertyAction (this, &FilterWheel::OnWheelNr);
    CreateProperty(g_ASIFW1000FilterWheelNr, "0", MM::Integer, false, pAct, true);
-
    AddAllowedValue(g_ASIFW1000FilterWheelNr, "0"); 
    AddAllowedValue(g_ASIFW1000FilterWheelNr, "1");
-
 }
 
 FilterWheel::~FilterWheel ()
@@ -416,10 +402,7 @@ int FilterWheel::Shutdown()
    return DEVICE_OK;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Action handlers                                                           
-///////////////////////////////////////////////////////////////////////////////
-
+// Action handlers
 
 int FilterWheel::OnState(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
@@ -546,7 +529,7 @@ int FilterWheel::OnSerialResponse(MM::PropertyBase* pProp, MM::ActionType eAct)
 // includes port in filterwheel so you can use 2 controllers
 // original implementation has hub but uses global variable so only one controller possible
 ///////////////////////////////////////////////////////////////////////////////
-FilterWheelSA::FilterWheelSA () :
+FilterWheelSA::FilterWheelSA() :
    port_("Undefined"),
    initialized_ (false),
    name_ (g_ASIFW1000FilterWheelSA),
@@ -636,7 +619,7 @@ int FilterWheelSA::SelectWheel()
       return ERR_UNRECOGNIZED_ANSWER;
 }
 
-FilterWheelSA::~FilterWheelSA ()
+FilterWheelSA::~FilterWheelSA()
 {
    Shutdown();
 }
@@ -733,7 +716,7 @@ bool FilterWheelSA::Busy()
 
    // response is unterminated so only get 1st character
    unsigned long read = 0;
-   char readChar[1];
+   char readChar[1] = {};
    MM::TimeoutMs timerOut(GetCurrentMMTime(), 200 );
    while (ret == DEVICE_OK && read == 0 && ( !timerOut.expired(GetCurrentMMTime()) ) )
    {
@@ -782,7 +765,6 @@ int FilterWheelSA::OnPort(MM::PropertyBase* pProp, MM::ActionType eAct)
    }
    return DEVICE_OK;
 }
-
 
 int FilterWheelSA::OnState(MM::PropertyBase* pProp, MM::ActionType eAct)
 {
@@ -883,11 +865,10 @@ int FilterWheelSA::OnSerialResponse(MM::PropertyBase* pProp, MM::ActionType eAct
    return DEVICE_OK;
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////
 // ASIFW1000 Shutter
 ///////////////////////////////////////////////////////////////////////////////
-Shutter::Shutter () :
+Shutter::Shutter() :
    initialized_ (false),
    name_ (g_ASIFW1000Shutter),
    shutterType_("Normally Open"),

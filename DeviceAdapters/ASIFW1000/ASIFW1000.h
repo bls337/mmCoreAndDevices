@@ -39,7 +39,6 @@ constexpr int ERR_UNKNOWN_POSITION = 10003;
 constexpr int ERR_HALT_COMMAND = 10004;
 constexpr int ERR_CANNOT_CHANGE_PROPERTY = 10005;
 
-// from Prior
 constexpr int ERR_INVALID_STEP_SIZE = 10006;
 constexpr int ERR_INVALID_MODE = 10008;
 constexpr int ERR_UNRECOGNIZED_ANSWER = 10009;
@@ -57,28 +56,28 @@ constexpr int ERR_OFFSET = 10100;
 
 const char* const g_SerialTerminatorFW = "\n\r";
 
-class Hub : public CGenericBase<Hub>
-{
+class ASIFWHub : public CGenericBase<ASIFWHub> {
 public:
-   Hub();
-   ~Hub();
+    ASIFWHub();
+    ~ASIFWHub();
   
-   // Device API
-   int Initialize();
-   int Shutdown();
+    // Device API
+    int Initialize();
+    int Shutdown();
   
-   void GetName(char* pszName) const;
-   bool Busy();
-   bool SupportsDeviceDetection(void);
-   MM::DeviceDetectionStatus DetectDevice(void);
+    void GetName(char* name) const;
+    bool Busy();
+    bool SupportsDeviceDetection();
+    MM::DeviceDetectionStatus DetectDevice();
 
-   // action interface
-   int OnPort(MM::PropertyBase* pProp, MM::ActionType eAct);
+    // action interface
+    int OnPort(MM::PropertyBase* pProp, MM::ActionType eAct);
 
 private:
-   bool initialized_;
-   // MMCore name of serial port
-   std::string port_;
+    bool initialized_;
+    std::string port_; // MMCore name of serial port
+
+    static constexpr long baudRates_[] = { 115200, 28800, 19200, 9600 };
 };
 
 class Shutter : public CShutterBase<Shutter>
@@ -188,7 +187,6 @@ private:
          { return QueryCommandVerify(command.c_str(), expectedReplyPrefix.c_str()); }
    int ParseAnswerAfterPosition(unsigned int pos, int &val);
    int SelectWheel();
-
 };
 
 #endif // ASIFW1000_H

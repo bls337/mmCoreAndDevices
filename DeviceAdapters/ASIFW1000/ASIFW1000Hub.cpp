@@ -45,7 +45,7 @@
 #include "DeviceUtils.h"
 
 
-ASIFW1000Hub::ASIFW1000Hub ()  :
+ASIFW1000Hub::ASIFW1000Hub() :
 	oldProtocol_(false),
 	port_("Undefined")
 {
@@ -117,10 +117,6 @@ int ASIFW1000Hub::SetVerboseMode(MM::Device& device, MM::Core& core, int level)
    return DEVICE_OK;
 }
 
-
-/*
- * 
- */
 int ASIFW1000Hub::SetFilterWheelPosition(MM::Device& device, MM::Core& core, int wheelNr, int pos)
 {
    if (wheelNr != activeWheel_)
@@ -164,7 +160,6 @@ int ASIFW1000Hub::GetFilterWheelPosition(MM::Device& device, MM::Core& core, int
    return DEVICE_OK;
 }
 
-
 // Gets the current wheels from the controller
 // Also sets private variable activeWheel_
 int ASIFW1000Hub::GetCurrentWheel(MM::Device& device, MM::Core& core, int& wheelNr)
@@ -194,7 +189,6 @@ int ASIFW1000Hub::GetCurrentWheel(MM::Device& device, MM::Core& core, int& wheel
    }
 }
 
-
 int ASIFW1000Hub::SetCurrentWheel(MM::Device& device, MM::Core& core, int wheelNr)
 {
    const char* command = "FW ";
@@ -222,7 +216,6 @@ int ASIFW1000Hub::SetCurrentWheel(MM::Device& device, MM::Core& core, int wheelN
    }
 }
 
-//
 //TODO: Error checking
 int ASIFW1000Hub::GetNumberOfPositions(MM::Device& device, MM::Core& core, int wheelNr, int& nrPos)
 {
@@ -245,8 +238,6 @@ int ASIFW1000Hub::GetNumberOfPositions(MM::Device& device, MM::Core& core, int w
 
    return DEVICE_OK;
 }
-
-
 
 int ASIFW1000Hub::FilterWheelBusy(MM::Device& device, MM::Core& core, bool& busy)
 { 
@@ -348,8 +339,6 @@ int ASIFW1000Hub::SendFilterWheelCommand(MM::Device& device, MM::Core& core, int
    return DEVICE_OK;
 }
 
-
-
 int ASIFW1000Hub::OpenShutter(MM::Device& device, MM::Core& core, int shutterNr)
 {
    std::ostringstream os;
@@ -418,7 +407,6 @@ int ASIFW1000Hub::GetShutterPosition(MM::Device& device, MM::Core& core, int shu
    return DEVICE_OK;
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////
 // HUB generic methods
 ///////////////////////////////////////////////////////////////////////////////
@@ -443,7 +431,6 @@ void ASIFW1000Hub::ClearRcvBuf()
    memset(rcvBuf_, 0, RCV_BUF_LENGTH);
 }
 
-
 /**
  * Sends serial command to the MMCore virtual serial port.
  */
@@ -466,4 +453,3 @@ bool ASIFW1000Hub::IsConnected()
 {
    return (port_.compare("Undefined") != 0);
 }
-
