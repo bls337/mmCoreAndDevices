@@ -5,12 +5,15 @@
  * Copyright (c) 2022, Applied Scientific Instrumentation
  */
 
-#ifndef _LIGHTSHEET_MANAGER_H_
-#define _LIGHTSHEET_MANAGER_H_
+#ifndef LIGHTSHEET_MANAGER_H
+#define LIGHTSHEET_MANAGER_H
 
-#include "MMDevice.h"
-#include "DeviceBase.h"
 #include "LightSheetDeviceManager.h"
+
+#include <string>
+
+#include "DeviceBase.h"
+#include "MMDevice.h"
 
 // version number
 const char* const gVersionNumber = "0.1.0";
@@ -42,4 +45,4 @@ const char* const gLightSheetTypeScanned = "Scanned";
 // no device selected
 const char* const gUndefined = "Undefined";
 
-#endif // _LIGHTSHEET_MANAGER_H_
+#endif // LIGHTSHEET_MANAGER_H

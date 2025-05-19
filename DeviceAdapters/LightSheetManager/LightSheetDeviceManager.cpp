@@ -9,7 +9,7 @@
 
 LightSheetDeviceManager::LightSheetDeviceManager() :
     initialized_(false),
-    geometryType_("diSPIM"), // TODO: why do the defaults not work? is it the property action?
+    geometryType_("diSPIM"),
     lightSheetType_("Scanned"),
     numImagingPaths_(1),
     numIlluminationPaths_(1),
@@ -27,15 +27,15 @@ LightSheetDeviceManager::LightSheetDeviceManager() :
 
     pAct = new CPropertyAction(this, &LightSheetDeviceManager::OnNumSimultaneousCameras);
     CreateProperty(gSimultaneousCameras, "1", MM::Integer, false, pAct, true);
-    SetPropertyLimits(gSimultaneousCameras, 1, INT_MAX);
+    SetPropertyLimits(gSimultaneousCameras, 1, 8);
 
     pAct = new CPropertyAction(this, &LightSheetDeviceManager::OnNumImagingPaths);
     CreateProperty(gImagingPaths, "1", MM::Integer, false, pAct, true);
-    SetPropertyLimits(gImagingPaths, 1, INT_MAX);
+    SetPropertyLimits(gImagingPaths, 1, 8);
 
     pAct = new CPropertyAction(this, &LightSheetDeviceManager::OnNumIlluminationPaths);
     CreateProperty(gIlluminationPaths, "1", MM::Integer, false, pAct, true);
-    SetPropertyLimits(gIlluminationPaths, 1, INT_MAX);
+    SetPropertyLimits(gIlluminationPaths, 1, 8);
 
     pAct = new CPropertyAction(this, &LightSheetDeviceManager::OnLightSheetType);
     CreateProperty(gLightSheetType, gLightSheetTypeScanned, MM::String, false, pAct, true);
@@ -97,7 +97,7 @@ int LightSheetDeviceManager::Initialize()
     return DEVICE_OK;
 }
 
-void LightSheetDeviceManager::CreateDeviceProperties(std::map<std::string, MM::DeviceType> deviceMap)
+void LightSheetDeviceManager::CreateDeviceProperties(const std::map<std::string, MM::DeviceType>& deviceMap)
 {
     // create properties from the device map
     for (const auto& device : deviceMap)

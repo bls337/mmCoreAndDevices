@@ -5,15 +5,18 @@
  * Copyright (c) 2022, Applied Scientific Instrumentation
  */
 
-#ifndef _LIGHTSHEET_DEVICE_MANAGER_H_
-#define _LIGHTSHEET_DEVICE_MANAGER_H_
+#ifndef LIGHTSHEET_DEVICE_MANAGER_H
+#define LIGHTSHEET_DEVICE_MANAGER_H
 
-#include "MMDevice.h"
-#include "DeviceBase.h"
 #include "LightSheetManager.h"
-#include "MicroscopeGeometry.h"
-#include <vector>
+
 #include <string>
+#include <vector>
+
+#include "DeviceBase.h"
+#include "MMDevice.h"
+
+#include "MicroscopeGeometry.h"
 
 class LightSheetDeviceManager : public CGenericBase<LightSheetDeviceManager>
 {
@@ -36,7 +39,7 @@ public:
 
 private:
     // Create properties for all properties in the device map.
-    void CreateDeviceProperties(std::map<std::string, MM::DeviceType> deviceMap);
+    void CreateDeviceProperties(const std::map<std::string, MM::DeviceType>& deviceMap);
 
     // Create properties for the imaging camera based on the number of imaging paths and simultaneous cameras on each imaging path.
     void CreateCameraProperties();
@@ -64,4 +67,4 @@ private:
 
 };
 
-#endif // _LIGHTSHEET_DEVICE_MANAGER_H_
+#endif // LIGHTSHEET_DEVICE_MANAGER_H
