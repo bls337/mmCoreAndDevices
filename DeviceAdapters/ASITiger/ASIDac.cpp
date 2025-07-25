@@ -375,11 +375,11 @@ int CDAC::GetMinVolts(double &volts)
 // enables TTL triggering; doesn't actually start anything going on controller
 int CDAC::StartDASequence()
 {
-	std::ostringstream command;
 	if (!ttl_trigger_supported_)
 	{
 		return DEVICE_UNSUPPORTED_COMMAND;
 	}
+	std::ostringstream command;
 	// ensure that ringbuffer pointer points to first entry and
 	// that we only trigger the first axis (assume only 1 axis on piezo card)
 	command << addressChar_ << "RM Y=1 Z=0";
@@ -394,11 +394,11 @@ int CDAC::StartDASequence()
 // disables TTL triggering; doesn't actually stop anything already happening on controller
 int CDAC::StopDASequence()
 {
-	std::ostringstream command;
 	if (!ttl_trigger_supported_)
 	{
 		return DEVICE_UNSUPPORTED_COMMAND;
 	}
+	std::ostringstream command;
 	command << addressChar_ << "TTL X=0";  // switch off TTL triggering
 	RETURN_ON_MM_ERROR(hub_->QueryCommandVerify(command.str(), ":A"));
 	return DEVICE_OK;
@@ -406,12 +406,12 @@ int CDAC::StopDASequence()
 
 int CDAC::ClearDASequence()
 {
-	std::ostringstream command;
 	if (!ttl_trigger_supported_)
 	{
 		return DEVICE_UNSUPPORTED_COMMAND;
 	}
 	sequence_.clear();
+	std::ostringstream command;
 	command << addressChar_ << "RM X=0";  // clear ring buffer
 	RETURN_ON_MM_ERROR(hub_->QueryCommandVerify(command.str(), ":A"));
 	return DEVICE_OK;
@@ -429,11 +429,11 @@ int CDAC::AddToDASequence(double voltage)
 
 int CDAC::SendDASequence()
 {
-	std::ostringstream command;
 	if (!ttl_trigger_supported_)
 	{
 		return DEVICE_UNSUPPORTED_COMMAND;
 	}
+	std::ostringstream command;
 	command << addressChar_ << "RM X=0"; // clear ring buffer
 	RETURN_ON_MM_ERROR(hub_->QueryCommandVerify(command.str(), ":A"));
 	for (unsigned i = 0; i < sequence_.size(); i++)  // send new points

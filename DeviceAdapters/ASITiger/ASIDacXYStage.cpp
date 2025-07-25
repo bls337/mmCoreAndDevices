@@ -402,7 +402,7 @@ int CDACXYStage::SetRelativePositionSteps(long x, long y)
 	return hub_->QueryCommandVerify(command.str(), ":A");
 }
 
-// FIXME: is this correct?
+// TODO: is this correct?
 int CDACXYStage::GetStepLimits(long& xMin, long& xMax, long& yMin, long& yMax)
 {
 	double minVoltsX = 0.0;
@@ -1790,11 +1790,11 @@ int CDACXYStage::StartXYStageSequence()
 // disables TTL triggering; doesn't actually stop anything already happening on controller
 int CDACXYStage::StopXYStageSequence()
 {
-	std::ostringstream command;
 	if (!ttl_trigger_supported_)
 	{
 		return DEVICE_UNSUPPORTED_COMMAND;
 	}
+	std::ostringstream command;
 	command << addressChar_ << "TTL X=0";  // switch off TTL triggering
 	RETURN_ON_MM_ERROR(hub_->QueryCommandVerify(command.str(), ":A"));
 	return DEVICE_OK;
@@ -1802,13 +1802,13 @@ int CDACXYStage::StopXYStageSequence()
 
 int CDACXYStage::ClearXYStageSequence()
 {
-	std::ostringstream command;
 	if (!ttl_trigger_supported_)
 	{
 		return DEVICE_UNSUPPORTED_COMMAND;
 	}
 	sequenceX_.clear();
 	sequenceY_.clear();
+	std::ostringstream command;
 	command << addressChar_ << "RM X=0";  // clear ring buffer
 	RETURN_ON_MM_ERROR(hub_->QueryCommandVerify(command.str(), ":A"));
 	return DEVICE_OK;
@@ -1828,11 +1828,11 @@ int CDACXYStage::AddToXYStageSequence(double positionX, double positionY)
 // TODO: unit conversion is needed
 int CDACXYStage::SendXYStageSequence()
 {
-	std::ostringstream command;
 	if (!ttl_trigger_supported_)
 	{
 		return DEVICE_UNSUPPORTED_COMMAND;
 	}
+	std::ostringstream command;
 	command << addressChar_ << "RM X=0"; // clear ring buffer
 	RETURN_ON_MM_ERROR(hub_->QueryCommandVerify(command.str(), ":A"));
 	for (unsigned i = 0; i < sequenceX_.size(); i++)  // send new points
@@ -1844,7 +1844,7 @@ int CDACXYStage::SendXYStageSequence()
 	return DEVICE_OK;
 }
 
-/////////////// TTL ///////////////
+// TTL
 
 int CDACXYStage::OnTTLin(MM::PropertyBase* pProp, MM::ActionType eAct)
 {

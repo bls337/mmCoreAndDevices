@@ -119,5 +119,14 @@
     <ClInclude Include="ASIDacXYStage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MixinInput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MixinRingBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MixinSingleAxis.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

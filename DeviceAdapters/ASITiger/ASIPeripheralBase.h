@@ -58,6 +58,17 @@ public:
       }
    }
 
+   const std::string& GetAddressChar() const {
+       return addressChar_;
+   }
+
+   ASIHub* GetHub() const {
+       return hub_;
+   }
+
+   bool GetRefreshProps() const { return refreshProps_; }
+   bool GetInitialized() const { return initialized_; }
+
    int Shutdown()
    {
       // NB: can be called even if the device was never fully initialized
@@ -195,7 +206,6 @@ protected:
          return 0;
       return (d1 < d2) ? -1 : 1;
    }
-
 
 private:
    // does the dirty work of converting a two-character hex (e.g. F5) into the single character

@@ -64,7 +64,7 @@ private:
    char channelAxisChar_;
    std::string axisLetter_;
    int gain_;
-   int avg_length_;
+   int avgLength_;
    int UpdateGain();
    int UpdateAvg();
  };

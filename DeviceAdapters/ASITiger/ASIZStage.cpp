@@ -591,7 +591,6 @@ int CZStage::SendStageSequence()
 
 int CZStage::ClearStageSequence()
 {
-   std::ostringstream command;
    if (runningFastSequence_)
    {
       return DEVICE_OK;
@@ -601,6 +600,7 @@ int CZStage::ClearStageSequence()
       return DEVICE_UNSUPPORTED_COMMAND;
    }
    sequence_.clear();
+   std::ostringstream command;
    command << addressChar_ << "RM X=0";  // clear ring buffer
    RETURN_ON_MM_ERROR ( hub_->QueryCommandVerify(command.str(),":A") );
    return DEVICE_OK;

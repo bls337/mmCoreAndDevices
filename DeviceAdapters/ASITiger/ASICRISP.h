@@ -36,12 +36,10 @@ public:
    ~CCRISP() { }
   
    // Device API
-   // ----------
    int Initialize();
    bool Busy();
 
    // AutoFocus API
-   // -------------
    int SetContinuousFocusing(bool state);
    int GetContinuousFocusing(bool& state);
    bool IsContinuousFocusLocked();
@@ -53,7 +51,6 @@ public:
    int SetOffset(double offset);
 
    // action interface
-   // ----------------
    int OnRefreshProperties (MM::PropertyBase* pProp, MM::ActionType eAct);
    int OnFocusState        (MM::PropertyBase* pProp, MM::ActionType eAct);
    int OnWaitAfterLock     (MM::PropertyBase* pProp, MM::ActionType eAct);

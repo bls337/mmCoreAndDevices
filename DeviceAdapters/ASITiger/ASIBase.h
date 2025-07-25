@@ -68,8 +68,9 @@ public:
 
       // name property will be used to re-create the object by calling CreateDevice again with this parameter
       // if name isn't specified then skip this step (=> method for parent objects to delay setting name until child created)
-      if (strcmp(name, "") != 0)
-         this->CreateProperty(MM::g_Keyword_Name, name, MM::String, true);
+      if (!std::string(name).empty()) {
+          this->CreateProperty(MM::g_Keyword_Name, name, MM::String, true);
+      }
    }
 
    virtual ~ASIBase() { }
@@ -83,10 +84,11 @@ public:
    void GetName(char* pszName) const
    {
       char name[MM::MaxStrLength];
-      if (this->HasProperty(MM::g_Keyword_Name))
-         this->GetProperty(MM::g_Keyword_Name, name);
-      else
-         strcpy(name, "Undefined");
+      if (this->HasProperty(MM::g_Keyword_Name)) {
+          this->GetProperty(MM::g_Keyword_Name, name);
+      } else {
+          strcpy(name, "Undefined");
+      }
       CDeviceUtils::CopyLimitedString(pszName, name);
    }
 

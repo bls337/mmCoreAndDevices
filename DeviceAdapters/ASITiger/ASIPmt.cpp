@@ -45,7 +45,7 @@ CPMT::CPMT(const char* name) :
    channelAxisChar_('X'), 
    axisLetter_(g_EmptyAxisLetterStr),
    gain_(0),
-   avg_length_(0)
+   avgLength_(0)
 {
    //Figure out what channel we are on
    if (IsExtendedName(name))  // only set up these properties if we have the required information in the name
@@ -208,7 +208,7 @@ int CPMT::UpdateAvg()
    replyprefix << ":" << axisLetter_ << "=";
    RETURN_ON_MM_ERROR( hub_->QueryCommandVerify(command.str(), replyprefix.str()) );
    RETURN_ON_MM_ERROR( hub_->ParseAnswerAfterEquals(tmp) );
-   avg_length_ = tmp;
+   avgLength_ = tmp;
 
    return DEVICE_OK;
 }
@@ -302,15 +302,15 @@ int CPMT::OnAverage(MM::PropertyBase* pProp, MM::ActionType eAct)
    { //Query the controller for gain
       if (!refreshProps_ && initialized_)
          return DEVICE_OK;
-      UpdateAvg();  // will set avg_length_ 
-      if (!pProp->Set((long)avg_length_ ))
+      UpdateAvg();  // will set avgLength_
+      if (!pProp->Set((long)avgLength_ ))
          return DEVICE_INVALID_PROPERTY_VALUE;
    }
    else if (eAct == MM::AfterSet) {
       pProp->Get(tmp);
       command << "E " << axisLetter_ << "=" << tmp;
       RETURN_ON_MM_ERROR( hub_->QueryCommandVerify(command.str(), ":A") );
-      avg_length_ = tmp;
+      avgLength_ = tmp;
    }
    return DEVICE_OK;
 }

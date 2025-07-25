@@ -26,22 +26,21 @@
 #define ASIXYSTAGE_H
 
 #include "ASIPeripheralBase.h"
+#include "MixinInput.h"
 #include "MMDevice.h"
 #include "DeviceBase.h"
 
-class CXYStage : public ASIPeripheralBase<CXYStageBase, CXYStage>
+class CXYStage : public ASIPeripheralBase<CXYStageBase, CXYStage>, public MixinInput<CXYStage>
 {
 public:
    CXYStage(const char* name);
    ~CXYStage() { }
   
    // Device API
-   // ----------
    int Initialize();
    bool Busy();
 
    // XYStage API
-   // -----------
    int Stop();
 
    // XYStageBase uses these functions to move the stage
@@ -79,8 +78,10 @@ public:
    // below aren't implemented yet
    int GetLimitsUm(double& /*xMin*/, double& /*xMax*/, double& /*yMin*/, double& /*yMax*/) { return DEVICE_UNSUPPORTED_COMMAND; }
 
+   const std::string& GetAxisLetterX() const { return axisLetterX_; }
+   const std::string& GetAxisLetterY() const { return axisLetterY_; }
+
    // action interface
-   // ----------------
    int OnSaveCardSettings     (MM::PropertyBase* pProp, MM::ActionType eAct);
    int OnRefreshProperties    (MM::PropertyBase* pProp, MM::ActionType eAct);
    int OnWaitTime             (MM::PropertyBase* pProp, MM::ActionType eAct);
@@ -124,14 +125,6 @@ public:
    int OnMotorControlGeneric(MM::PropertyBase* pProp, MM::ActionType eAct, const std::string& axisLetter);
    int OnMotorControlX        (MM::PropertyBase* pProp, MM::ActionType eAct) { return OnMotorControlGeneric(pProp, eAct, axisLetterX_); }
    int OnMotorControlY        (MM::PropertyBase* pProp, MM::ActionType eAct) { return OnMotorControlGeneric(pProp, eAct, axisLetterY_); }
-   int OnJoystickFastSpeed    (MM::PropertyBase* pProp, MM::ActionType eAct);
-   int OnJoystickSlowSpeed    (MM::PropertyBase* pProp, MM::ActionType eAct);
-   int OnJoystickMirror       (MM::PropertyBase* pProp, MM::ActionType eAct);
-   int OnJoystickRotate       (MM::PropertyBase* pProp, MM::ActionType eAct);
-   int OnJoystickEnableDisable(MM::PropertyBase* pProp, MM::ActionType eAct);
-   int OnWheelFastSpeed       (MM::PropertyBase* pProp, MM::ActionType eAct);
-   int OnWheelSlowSpeed       (MM::PropertyBase* pProp, MM::ActionType eAct);
-   int OnWheelMirror          (MM::PropertyBase* pProp, MM::ActionType eAct);
    int OnAxisPolarityX        (MM::PropertyBase* pProp, MM::ActionType eAct);
    int OnAxisPolarityY        (MM::PropertyBase* pProp, MM::ActionType eAct);
    int OnScanState            (MM::PropertyBase* pProp, MM::ActionType eAct);
@@ -156,7 +149,6 @@ public:
    int OnVectorGeneric(MM::PropertyBase* pProp, MM::ActionType eAct, const std::string& axisLetter);
    int OnVectorX(MM::PropertyBase* pProp, MM::ActionType eAct) { return OnVectorGeneric(pProp, eAct, axisLetterX_); }
    int OnVectorY(MM::PropertyBase* pProp, MM::ActionType eAct) { return OnVectorGeneric(pProp, eAct, axisLetterY_); }
-
 
 private:
    double unitMultX_;

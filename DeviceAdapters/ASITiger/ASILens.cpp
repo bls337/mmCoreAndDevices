@@ -482,12 +482,12 @@ int CLens::SendStageSequence()
 
 int CLens::ClearStageSequence()
 {
-   std::ostringstream command;
    if (!ttl_trigger_supported_)
    {
       return DEVICE_UNSUPPORTED_COMMAND;
    }
    sequence_.clear();
+   std::ostringstream command;
    command << addressChar_ << "RM X=0";  // clear ring buffer
    RETURN_ON_MM_ERROR ( hub_->QueryCommandVerify(command.str(),":A") );
    return DEVICE_OK;

@@ -35,7 +35,10 @@ libmmgr_dal_ASITiger_la_SOURCES = \
 	ASIXYStage.cpp \
 	ASIXYStage.h \
 	ASIZStage.cpp \
-	ASIZStage.h
+	ASIZStage.h \
+	MixinInput.h \
+	MixinRingBuffer.h \
+	MixinSingleAxis.h
 libmmgr_dal_ASITiger_la_LIBADD = $(MMDEVAPI_LIBADD)
 libmmgr_dal_ASITiger_la_LDFLAGS = $(MMDEVAPI_LDFLAGS)
 

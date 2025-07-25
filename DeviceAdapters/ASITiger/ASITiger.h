@@ -29,7 +29,6 @@
 
 #include <string>
 #include <vector>
-#include <iostream>
 
 //////////////////////////////////////////////////////////////////////////////
 // ASI-specific macros
@@ -266,10 +265,6 @@ const char* const g_ScannerLowerLimXPropertyName = "MinDeflectionX(deg)";
 const char* const g_ScannerUpperLimXPropertyName = "MaxDeflectionX(deg)";
 const char* const g_ScannerLowerLimYPropertyName = "MinDeflectionY(deg)";
 const char* const g_ScannerUpperLimYPropertyName = "MaxDeflectionY(deg)";
-const char* const g_JoystickFastSpeedXPropertyName = "JoystickFastSpeedX";
-const char* const g_JoystickFastSpeedYPropertyName = "JoystickFastSpeedY";
-const char* const g_JoystickSlowSpeedXPropertyName = "JoystickSlowSpeedX";
-const char* const g_JoystickSlowSpeedYPropertyName = "JoystickSlowSpeedY";
 const char* const g_JoystickSelectXPropertyName = "JoystickInputX";
 const char* const g_JoystickSelectYPropertyName = "JoystickInputY";
 const char* const g_ScannerInputModePropertyName = "InputMode";
