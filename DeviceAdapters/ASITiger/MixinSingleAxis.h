@@ -210,10 +210,10 @@ private:
                 return DEVICE_OK;
             }
          ));
-        derived->AddAllowedValue(g_SAModePropertyName, g_SAMode_0);
-        derived->AddAllowedValue(g_SAModePropertyName, g_SAMode_1);
-        derived->AddAllowedValue(g_SAModePropertyName, g_SAMode_2);
-        derived->AddAllowedValue(g_SAModePropertyName, g_SAMode_3);
+        derived->AddAllowedValue(propertyName.c_str(), g_SAMode_0);
+        derived->AddAllowedValue(propertyName.c_str(), g_SAMode_1);
+        derived->AddAllowedValue(propertyName.c_str(), g_SAMode_2);
+        derived->AddAllowedValue(propertyName.c_str(), g_SAMode_3);
         derived->UpdateProperty(propertyName.c_str());
     }
 
@@ -287,8 +287,9 @@ private:
         derived->AddAllowedValue(propertyName.c_str(), g_SAPattern_0);
         derived->AddAllowedValue(propertyName.c_str(), g_SAPattern_1);
         derived->AddAllowedValue(propertyName.c_str(), g_SAPattern_2);
-        // FIXME: add firmware version check
-        derived->AddAllowedValue(propertyName.c_str(), g_SAPattern_3);
+        if (derived->FirmwareVersionAtLeast(3.14)) {
+            derived->AddAllowedValue(propertyName.c_str(), g_SAPattern_3);
+        }
         derived->UpdateProperty(propertyName.c_str());
     }
 

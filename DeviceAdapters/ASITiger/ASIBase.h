@@ -54,13 +54,12 @@
 ////////////////////////////////////////////////////////////////
 
 template <template <typename> class TDeviceBase, class UConcreteDevice>
-class ASIBase : public TDeviceBase<UConcreteDevice>
-{
+class ASIBase : public TDeviceBase<UConcreteDevice> {
 public:
    ASIBase(const char* name) :
       initialized_(false),
-      firmwareVersion_(0.0)
-   {
+      firmwareVersion_(0.0) {
+
       this->InitializeDefaultErrorMessages();
       InitializeASIErrorMessages();
 
@@ -75,14 +74,12 @@ public:
 
    virtual ~ASIBase() { }
 
-   int Shutdown()
-   {
+   int Shutdown() {
       initialized_ = false;
       return DEVICE_OK;
    }
 
-   void GetName(char* pszName) const
-   {
+   void GetName(char* pszName) const {
       char name[MM::MaxStrLength];
       if (this->HasProperty(MM::g_Keyword_Name)) {
           this->GetProperty(MM::g_Keyword_Name, name);
@@ -94,19 +91,17 @@ public:
 
    bool Busy() { return false; } // should be implemented in child class
 
+   bool FirmwareVersionAtLeast(double minimumFirmwareVersion) {
+       return firmwareVersion_ > (minimumFirmwareVersion - 1e-6);  // 1e-6 to make sure match is counted as OK despite possible floating point arithmetic issues
+   }
+
 protected:
    bool initialized_;      // used to signal that device properties have been read from controller
    double firmwareVersion_; // firmware version
    std::string firmwareDate_;    // firmware compile date
    std::string firmwareBuild_;   // firmware build name
 
-   bool FirmwareVersionAtLeast(double minimumFirmwareVersion)
-   {
-      return firmwareVersion_ > (minimumFirmwareVersion - 1e-6);  // 1e-6 to make sure match is counted as OK despite possible floating point arithmetic issues
-   }
-
-   void InitializeASIErrorMessages()
-   {
+   void InitializeASIErrorMessages() {
       this->SetErrorText(ERR_UNRECOGNIZED_ANSWER, g_Msg_ERR_UNRECOGNIZED_ANSWER);
       this->SetErrorText(ERR_FILTER_WHEEL_NOT_READY, g_Msg_ERR_FILTER_WHEEL_NOT_READY);
       this->SetErrorText(ERR_FILTER_WHEEL_SPINNING, g_Msg_ERR_FILTER_WHEEL_SPINNING);

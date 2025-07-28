@@ -137,7 +137,7 @@ public:
         }
 
         // Wheel properties
-        if (firmwareVersion >= 2.87) {
+        if (derived->FirmwareVersionAtLeast(3.14)) {
             // Changed behavior of JS F and JS T as of v2.87
             CreateWheelFastSpeedProperty();
             CreateWheelSlowSpeedProperty();
