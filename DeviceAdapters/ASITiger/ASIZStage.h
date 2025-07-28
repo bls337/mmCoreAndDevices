@@ -26,10 +26,11 @@
 #define ASIZSTAGE_H
 
 #include "ASIPeripheralBase.h"
+#include "MixinSingleAxis.h"
 #include "MMDevice.h"
 #include "DeviceBase.h"
 
-class CZStage : public ASIPeripheralBase<CStageBase, CZStage>
+class CZStage : public ASIPeripheralBase<CStageBase, CZStage>, public MixinSingleAxis<CZStage>
 {
 public:
    CZStage(const char* name);
@@ -53,7 +54,7 @@ public:
    int SetRelativePositionUm(double d);
    int GetLimits(double& min, double& max);
    int SetOrigin();
-   int 	Move (double velocity);
+   int Move(double velocity);
 
    bool IsContinuousFocusDrive() const {return false;}  // todo figure out what this means and if it's accurate
 
@@ -65,6 +66,8 @@ public:
    int ClearStageSequence();
    int AddToStageSequence(double position);
    int SendStageSequence();
+
+   const std::string& GetAxisLetter() const { return axisLetter_; }
 
    // action interface
    int OnSaveCardSettings     (MM::PropertyBase* pProp, MM::ActionType eAct);

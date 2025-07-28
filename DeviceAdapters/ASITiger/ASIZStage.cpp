@@ -401,6 +401,9 @@ int CZStage::Initialize()
    SetPropertyLimits(g_VectorPropertyName, maxSpeed*-1, maxSpeed);
    UpdateProperty(g_VectorPropertyName);
 
+   // Mixins
+   MixinCreateSingleAxisProperties();
+
    initialized_ = true;
    return DEVICE_OK;
 }
