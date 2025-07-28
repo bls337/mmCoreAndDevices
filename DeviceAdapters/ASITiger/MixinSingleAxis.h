@@ -46,7 +46,7 @@ public:
         CreateSingleAxisPeriodProperty(g_SAPeriodPropertyName, derived->GetAxisLetter());
         CreateSingleAxisModeProperty(g_SAModePropertyName, derived->GetAxisLetter());
         CreateSingleAxisPatternProperty(g_SAPatternPropertyName, derived->GetAxisLetter());
-        CreateSingleAxisAdvancedProperties();
+        CreateSingleAxisAdvancedProperties(g_AdvancedSAPropertiesPropertyName, derived->GetAxisLetter());
     }
 
 private:
@@ -292,28 +292,27 @@ private:
         derived->UpdateProperty(propertyName.c_str());
     }
 
-    void CreateSingleAxisAdvancedProperties() {
+    void CreateSingleAxisAdvancedProperties(const std::string& propertyName, const std::string& axisLetter) {
         T* derived = GetDerived();
 
         derived->CreateStringProperty(
-            g_AdvancedSAPropertiesPropertyName, "No", false,
-            new MM::ActionLambda([derived](MM::PropertyBase* pProp, MM::ActionType eAct) {
+            propertyName.c_str(), "No", false,
+            new MM::ActionLambda([this, derived, axisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 if (eAct == MM::BeforeGet) {
                     return DEVICE_OK; // do nothing
                 } else if (eAct == MM::AfterSet) {
-                    //CreateSingleAxisClockSourceProperty(g_SAClkSrcPropertyName, derived->GetAxisLetter());
-                    //CreateSingleAxisClockPolarityProperty(g_SAClkPolPropertyName, derived->GetAxisLetter());
-                    //CreateSingleAxisTTLOutputProperty(g_SATTLOutPropertyName, derived->GetAxisLetter());
-                    //CreateSingleAxisTTLPolarityProperty(g_SATTLPolPropertyName, derived->GetAxisLetter());
-                    //CreateSingleAxisPatternByteProperty(g_SAPatternModePropertyName, derived->GetAxisLetter());
+                    this->CreateSingleAxisClockSourceProperty(g_SAClkSrcPropertyName, axisLetter);
+                    this->CreateSingleAxisClockPolarityProperty(g_SAClkPolPropertyName, axisLetter);
+                    this->CreateSingleAxisTTLOutputProperty(g_SATTLOutPropertyName, axisLetter);
+                    this->CreateSingleAxisTTLPolarityProperty(g_SATTLPolPropertyName, axisLetter);
+                    this->CreateSingleAxisPatternByteProperty(g_SAPatternModePropertyName, axisLetter);
                 }
                 return DEVICE_OK;
             }
         ));
-
-        derived->AddAllowedValue(g_AdvancedSAPropertiesPropertyName, "No");
-        derived->AddAllowedValue(g_AdvancedSAPropertiesPropertyName, "Yes");
-        derived->UpdateProperty(g_AdvancedSAPropertiesPropertyName);
+        derived->AddAllowedValue(propertyName.c_str(), "No");
+        derived->AddAllowedValue(propertyName.c_str(), "Yes");
+        derived->UpdateProperty(propertyName.c_str());
     }
 
     // Advanced properties
@@ -376,8 +375,8 @@ private:
                 return DEVICE_OK;
             }
         ));
-        derived->AddAllowedValues(g_SAClkSrc_0);
-        derived->AddAllowedValues(g_SAClkSrc_1);
+        derived->AddAllowedValue(propertyName.c_str(), g_SAClkSrc_0);
+        derived->AddAllowedValue(propertyName.c_str(), g_SAClkSrc_1);
         derived->UpdateProperty(propertyName.c_str());
     }
 
@@ -439,8 +438,8 @@ private:
                 return DEVICE_OK;
             }
         ));
-        derived->AddAllowedValues(g_SAClkPol_0);
-        derived->AddAllowedValues(g_SAClkPol_1);
+        derived->AddAllowedValue(propertyName.c_str(), g_SAClkPol_0);
+        derived->AddAllowedValue(propertyName.c_str(), g_SAClkPol_1);
         derived->UpdateProperty(propertyName.c_str());
     }
 
@@ -501,8 +500,8 @@ private:
                 return DEVICE_OK;
             }
         ));
-        derived->AddAllowedValues(g_SATTLOut_0);
-        derived->AddAllowedValues(g_SATTLOut_1);
+        derived->AddAllowedValue(propertyName.c_str(), g_SATTLOut_0);
+        derived->AddAllowedValue(propertyName.c_str(), g_SATTLOut_1);
         derived->UpdateProperty(propertyName.c_str());
     }
 
@@ -564,8 +563,8 @@ private:
                 return DEVICE_OK;
             }
         ));
-        derived->AddAllowedValues(g_SATTLPol_0);
-        derived->AddAllowedValues(g_SATTLPol_1);
+        derived->AddAllowedValue(propertyName.c_str(), g_SATTLPol_0);
+        derived->AddAllowedValue(propertyName.c_str(), g_SATTLPol_1);
         derived->UpdateProperty(propertyName.c_str());
     }
 
@@ -573,7 +572,7 @@ private:
         T* derived = GetDerived();
 
         derived->CreateIntegerProperty(
-            propertyName.c_str(), "", false,
+            propertyName.c_str(), 0, false,
             new MM::ActionLambda([derived, axisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 // get every single time
                 std::ostringstream command;
