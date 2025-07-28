@@ -107,7 +107,7 @@ private:
 public:
     // Creates manual input properties, call this in type T's Initialize() function.
     // The isXYStage parameter is for two axis stages such as ASIXYStage and ASIDacXYStage.
-    void MixinCreateInputProperties(const double firmwareVersion, const bool isXYStage = false) {
+    void MixinCreateInputProperties(const bool isXYStage = false) {
         T* derived = GetDerived();
 
         // Joystick properties - always added

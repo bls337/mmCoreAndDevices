@@ -407,7 +407,7 @@ int CXYStage::Initialize()
    UpdateProperty(g_VectorYPropertyName);
 
    // Mixins
-   MixinCreateInputProperties(firmwareVersion_, true);
+   MixinCreateInputProperties(true);
 
    initialized_ = true;
    return DEVICE_OK;
