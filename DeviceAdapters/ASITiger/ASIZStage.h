@@ -67,6 +67,7 @@ public:
    int AddToStageSequence(double position);
    int SendStageSequence();
 
+   const double GetUnitMult() const { return unitMult_; }
    const std::string& GetAxisLetter() const { return axisLetter_; }
 
    // action interface

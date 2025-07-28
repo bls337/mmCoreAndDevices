@@ -30,6 +30,16 @@
 #include <string>
 
 // A mixin that adds single axis properties to an ASI device.
+//
+// Requirements (the derived class should implement these depending on number of axes):
+// const std::string& GetAxisLetter() const { return axisLetter_; }   // For One Axis
+// const std::string& GetAxisLetterX() const { return axisLetterX_; } // For Two Axes
+// const std::string& GetAxisLetterY() const { return axisLetterY_; } // For Two Axes
+//
+// Example:
+// 1) Inherit MixinSingleAxis<T>, where T is the derived class that uses the mixin (CRTP).
+// Example: class CZStage : public ASIPeripheralBase<CStageBase, CZStage>, public MixinSingleAxis<CZStage>
+// 2) Call the function MixinCreateSingleAxisProperties() from T's Initialize() function.
 template <typename T>
 class MixinSingleAxis {
 private:
@@ -67,13 +77,13 @@ private:
                     response << ":A " << axisLetter << "=";
                     RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
-                    tmp = tmp / unitMult_;
+                    tmp = tmp / derived->GetUnitMult();
                     if (!pProp->Set(tmp)) {
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
                 } else if (eAct == MM::AfterSet) {
                     pProp->Get(tmp);
-                    command << "SAA " << axisLetter << "=" << tmp * unitMult_;
+                    command << "SAA " << axisLetter << "=" << tmp * derived->GetUnitMult();
                     RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
                 }
                 return DEVICE_OK;
@@ -99,13 +109,13 @@ private:
                     response << ":A " << axisLetter << "=";
                     RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
-                    tmp = tmp / unitMult_;
+                    tmp = tmp / derived->GetUnitMult();
                     if (!pProp->Set(tmp)) {
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
                 } else if (eAct == MM::AfterSet) {
                     pProp->Get(tmp);
-                    command << "SAO " << axisLetter << "=" << tmp * unitMult_;
+                    command << "SAO " << axisLetter << "=" << tmp * derived->GetUnitMult();
                     RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
                 }
                 return DEVICE_OK;
