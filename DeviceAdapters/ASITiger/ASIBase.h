@@ -95,6 +95,8 @@ public:
        return firmwareVersion_ > (minimumFirmwareVersion - 1e-6);  // 1e-6 to make sure match is counted as OK despite possible floating point arithmetic issues
    }
 
+   bool GetInitialized() const { return initialized_; }
+
 protected:
    bool initialized_;      // used to signal that device properties have been read from controller
    double firmwareVersion_; // firmware version

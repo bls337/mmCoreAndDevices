@@ -67,7 +67,6 @@ public:
    }
 
    bool GetRefreshProps() const { return refreshProps_; }
-   bool GetInitialized() const { return initialized_; }
 
    int Shutdown()
    {

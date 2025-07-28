@@ -47,7 +47,7 @@ private:
     const T* GetDerived() const { return static_cast<const T*>(this); }
 
 public:
-    // Create single axis properties
+    // Create single axis properties, call this in type T's Initialize() function.
     void MixinCreateSingleAxisProperties() {
         T* derived = GetDerived();
 
