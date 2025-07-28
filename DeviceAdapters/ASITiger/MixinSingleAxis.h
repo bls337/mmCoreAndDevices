@@ -309,17 +309,19 @@ private:
         derived->CreateStringProperty(
             propertyName.c_str(), "No", false,
             new MM::ActionLambda([this, derived, axisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
+                static bool isAdvancedPropsEnabled = false;
                 if (eAct == MM::BeforeGet) {
                     return DEVICE_OK; // do nothing
                 } else if (eAct == MM::AfterSet) {
                     std::string tmpstr;
                     pProp->Get(tmpstr);
-                    if (tmpstr == "Yes") {
+                    if (!isAdvancedPropsEnabled && tmpstr == "Yes") {
                         this->CreateSingleAxisClockSourceProperty(g_SAClkSrcPropertyName, axisLetter);
                         this->CreateSingleAxisClockPolarityProperty(g_SAClkPolPropertyName, axisLetter);
                         this->CreateSingleAxisTTLOutputProperty(g_SATTLOutPropertyName, axisLetter);
                         this->CreateSingleAxisTTLPolarityProperty(g_SATTLPolPropertyName, axisLetter);
                         this->CreateSingleAxisPatternByteProperty(g_SAPatternModePropertyName, axisLetter);
+                        isAdvancedPropsEnabled = true;
                     }
                 }
                 return DEVICE_OK;
