@@ -312,11 +312,15 @@ private:
                 if (eAct == MM::BeforeGet) {
                     return DEVICE_OK; // do nothing
                 } else if (eAct == MM::AfterSet) {
-                    this->CreateSingleAxisClockSourceProperty(g_SAClkSrcPropertyName, axisLetter);
-                    this->CreateSingleAxisClockPolarityProperty(g_SAClkPolPropertyName, axisLetter);
-                    this->CreateSingleAxisTTLOutputProperty(g_SATTLOutPropertyName, axisLetter);
-                    this->CreateSingleAxisTTLPolarityProperty(g_SATTLPolPropertyName, axisLetter);
-                    this->CreateSingleAxisPatternByteProperty(g_SAPatternModePropertyName, axisLetter);
+                    std::string tmpstr;
+                    pProp->Get(tmpstr);
+                    if (tmpstr == "Yes") {
+                        this->CreateSingleAxisClockSourceProperty(g_SAClkSrcPropertyName, axisLetter);
+                        this->CreateSingleAxisClockPolarityProperty(g_SAClkPolPropertyName, axisLetter);
+                        this->CreateSingleAxisTTLOutputProperty(g_SATTLOutPropertyName, axisLetter);
+                        this->CreateSingleAxisTTLPolarityProperty(g_SATTLPolPropertyName, axisLetter);
+                        this->CreateSingleAxisPatternByteProperty(g_SAPatternModePropertyName, axisLetter);
+                    }
                 }
                 return DEVICE_OK;
             }
