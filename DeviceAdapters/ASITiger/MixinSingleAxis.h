@@ -259,7 +259,8 @@ private:
                     case 3:
                         success = pProp->Set(g_SAPattern_3);
                         break;
-                    default:success = 0;
+                    default:
+                        success = 0;
                         break;
                     }
                     if (!success) {
@@ -486,7 +487,8 @@ private:
                     case BIT5:
                         success = pProp->Set(g_SATTLOut_1);
                         break;
-                    default:success = 0;
+                    default:
+                        success = 0;
                         break;
                     }
                     if (!success) {

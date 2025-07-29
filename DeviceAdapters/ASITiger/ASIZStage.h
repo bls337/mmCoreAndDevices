@@ -27,12 +27,14 @@
 
 #include "ASIPeripheralBase.h"
 #include "MixinInput.h"
+#include "MixinRingBuffer.h"
 #include "MixinSingleAxis.h"
 #include "MMDevice.h"
 #include "DeviceBase.h"
 
 class CZStage : public ASIPeripheralBase<CStageBase, CZStage>,
     public MixinInput<CZStage>,
+    public MixinRingBuffer<CZStage>,
     public MixinSingleAxis<CZStage> {
 public:
    CZStage(const char* name);

@@ -403,6 +403,7 @@ int CZStage::Initialize()
 
    // Mixins
    MixinCreateInputProperties();
+   MixinCreateRingBufferProperties();
    MixinCreateSingleAxisProperties();
 
    initialized_ = true;
