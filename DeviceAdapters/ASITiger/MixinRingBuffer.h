@@ -101,9 +101,15 @@ private:
                 return DEVICE_OK;
             }
         ));
+        if (derived->FirmwareVersionAtLeast(3.41)) {
+            derived->AddAllowedValue(g_RB_ModePropertyName, g_RB_PlayConsume_0);
+        }
         derived->AddAllowedValue(g_RB_ModePropertyName, g_RB_OnePoint_1);
         derived->AddAllowedValue(g_RB_ModePropertyName, g_RB_PlayOnce_2);
         derived->AddAllowedValue(g_RB_ModePropertyName, g_RB_PlayRepeat_3);
+        if (derived->FirmwareVersionAtLeast(3.45)) {
+            derived->AddAllowedValue(g_RB_ModePropertyName, g_RB_PlayOnce_NoReturn_4);
+        }
         derived->UpdateProperty(g_RB_ModePropertyName);
     }
 
@@ -122,8 +128,9 @@ private:
                     command << derived->GetAddressChar() << "RT Z?";
                     RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A Z="));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
-                    if (!pProp->Set(tmp))
+                    if (!pProp->Set(tmp)) {
                         return DEVICE_INVALID_PROPERTY_VALUE;
+                    }
                 } else if (eAct == MM::AfterSet) {
                     if (derived->GetHub()->UpdatingSharedProperties()) {
                         return DEVICE_OK;

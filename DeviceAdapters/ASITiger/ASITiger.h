@@ -719,9 +719,11 @@ const char* const g_IdleState = "Not done";
 const char* const g_DoItState = "Do it";
 const char* const g_DoneState = "Done";
 // ring buffer modes
+const char* const g_RB_PlayConsume_0 = "0 - Consume";
 const char* const g_RB_OnePoint_1 =   "1 - One Point";
 const char* const g_RB_PlayOnce_2 =   "2 - Play Once";
 const char* const g_RB_PlayRepeat_3 = "3 - Repeat";
+const char* const g_RB_PlayOnce_NoReturn_4 = "4 - Play Once (No Return)";
 // axis polarity
 const char* const g_FocusPolarityASIDefault = "Negative towards sample";  // used for focus stages
 const char* const g_FocusPolarityMicroManagerDefault = "Positive towards sample";  // used for focus stages
