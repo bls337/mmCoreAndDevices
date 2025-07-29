@@ -67,12 +67,12 @@ private:
             propertyName.c_str(), 0.0, false,
             new MM::ActionLambda([derived, axisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 std::ostringstream command;
-                std::ostringstream response;
                 double tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
+                    std::ostringstream response;
                     command << "SAA " << axisLetter << "?";
                     response << ":A " << axisLetter << "=";
                     RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
@@ -99,12 +99,12 @@ private:
             propertyName.c_str(), 0.0, false,
             new MM::ActionLambda([derived, axisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 std::ostringstream command;
-                std::ostringstream response;
                 double tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
+                    std::ostringstream response;
                     command << "SAO " << axisLetter << "?";
                     response << ":A " << axisLetter << "=";
                     RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
@@ -131,12 +131,12 @@ private:
             propertyName.c_str(), 0, false,
             new MM::ActionLambda([derived, axisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 std::ostringstream command;
-                std::ostringstream response;
                 long tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
+                    std::ostringstream response;
                     command << "SAF " << axisLetter << "?";
                     response << ":A " << axisLetter << "=";
                     RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
@@ -163,12 +163,12 @@ private:
             new MM::ActionLambda([derived, axisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 static bool justSet = false;
                 std::ostringstream command;
-                std::ostringstream response;
                 long tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized() && !justSet) {
                         return DEVICE_OK;
                     }
+                    std::ostringstream response;
                     command << "SAM " << axisLetter << "?";
                     response << ":A " << axisLetter << "=";
                     RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
