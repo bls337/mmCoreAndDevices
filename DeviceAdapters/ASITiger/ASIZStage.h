@@ -26,12 +26,14 @@
 #define ASIZSTAGE_H
 
 #include "ASIPeripheralBase.h"
+#include "MixinInput.h"
 #include "MixinSingleAxis.h"
 #include "MMDevice.h"
 #include "DeviceBase.h"
 
-class CZStage : public ASIPeripheralBase<CStageBase, CZStage>, public MixinSingleAxis<CZStage>
-{
+class CZStage : public ASIPeripheralBase<CStageBase, CZStage>,
+    public MixinInput<CZStage>,
+    public MixinSingleAxis<CZStage> {
 public:
    CZStage(const char* name);
    ~CZStage() { }
@@ -56,7 +58,7 @@ public:
    int SetOrigin();
    int Move(double velocity);
 
-   bool IsContinuousFocusDrive() const {return false;}  // todo figure out what this means and if it's accurate
+   bool IsContinuousFocusDrive() const {return false;} // TODO: figure out what this means and if it's accurate
 
    int IsStageSequenceable(bool& isSequenceable) const { isSequenceable = ttl_trigger_enabled_; return DEVICE_OK; }
    int GetStageSequenceMaxLength(long& nrEvents) const { nrEvents = ring_buffer_capacity_; return DEVICE_OK; }

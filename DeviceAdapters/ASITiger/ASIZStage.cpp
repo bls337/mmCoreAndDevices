@@ -402,6 +402,7 @@ int CZStage::Initialize()
    UpdateProperty(g_VectorPropertyName);
 
    // Mixins
+   MixinCreateInputProperties();
    MixinCreateSingleAxisProperties();
 
    initialized_ = true;
