@@ -42,11 +42,11 @@ private:
     void CreateRingBufferModeProperty() {
         T* derived = GetDerived();
 
-        const std::string pseudoAxisChar = derived->FirmwareVersionAtLeast(2.89) ? "F" : "X";
+        const std::string pseudoAxisLetter = derived->FirmwareVersionAtLeast(2.89) ? "F" : "X";
 
         derived->CreateStringProperty(
             g_RB_ModePropertyName, g_RB_OnePoint_1, false,
-            new MM::ActionLambda([derived, pseudoAxisChar](MM::PropertyBase* pProp, MM::ActionType eAct) {
+            new MM::ActionLambda([derived, pseudoAxisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 std::ostringstream command;
                 std::ostringstream response;
                 long tmp;
@@ -54,8 +54,8 @@ private:
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
-                    command << derived->GetAddressChar() << "RM " << pseudoAxisChar << "?";
-                    response << ":A " << pseudoAxisChar << "=";
+                    command << derived->GetAddressChar() << "RM " << pseudoAxisLetter << "?";
+                    response << ":A " << pseudoAxisLetter << "=";
                     RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     if (tmp >= 128) {
@@ -63,6 +63,9 @@ private:
                     }
                     bool success;
                     switch (tmp) {
+                    case 0:
+                        success = pProp->Set(g_RB_PlayConsume_0);
+                        break;
                     case 1:
                         success = pProp->Set(g_RB_OnePoint_1);
                         break;
@@ -71,6 +74,9 @@ private:
                         break;
                     case 3:
                         success = pProp->Set(g_RB_PlayRepeat_3);
+                        break;
+                    case 4:
+                        success = pProp->Set(g_RB_PlayOnce_NoReturn_4);
                         break;
                     default:
                         success = false;
@@ -94,7 +100,7 @@ private:
                     } else {
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
-                    command << derived->GetAddressChar() << "RM " << pseudoAxisChar << "=" << tmp;
+                    command << derived->GetAddressChar() << "RM " << pseudoAxisLetter << "=" << tmp;
                     RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
                     RETURN_ON_MM_ERROR(derived->GetHub()->UpdateSharedProperties(derived->GetAddressChar(), pProp->GetName(), tmpstr.c_str()));
                 }
@@ -181,11 +187,11 @@ private:
     void CreateRingBufferAutoplayRunningProperty() {
         T* derived = GetDerived();
 
-        const std::string pseudoAxisChar = derived->FirmwareVersionAtLeast(2.89) ? "F" : "X";
+        const std::string pseudoAxisLetter = derived->FirmwareVersionAtLeast(2.89) ? "F" : "X";
 
         derived->CreateStringProperty(
             g_RB_AutoplayRunningPropertyName, "No", false,
-            new MM::ActionLambda([derived, pseudoAxisChar](MM::PropertyBase* pProp, MM::ActionType eAct) {
+            new MM::ActionLambda([derived, pseudoAxisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 std::ostringstream command;
                 std::ostringstream response;
                 long tmp = 0;
@@ -194,8 +200,8 @@ private:
                     if (!derived->GetRefreshProps() && derived->GetInitialized() && !justSet) {
                         return DEVICE_OK;
                     }
-                    command << derived->GetAddressChar() << "RM " << pseudoAxisChar << "?";
-                    response << ":A " << pseudoAxisChar << "=";
+                    command << derived->GetAddressChar() << "RM " << pseudoAxisLetter << "?";
+                    response << ":A " << pseudoAxisLetter << "=";
                     RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     bool success;
