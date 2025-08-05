@@ -160,19 +160,19 @@ private:
         if constexpr (HasGetAxisLetterX<T>::value && HasGetAxisLetterY<T>::value) {
             T* derived = GetDerived();
 
+            const std::string query = "J " + derived->GetAxisLetterX() + "?";
+            const std::string response = ":A " + derived->GetAxisLetterX() + "=";
+
             derived->CreateStringProperty(
                 g_JoystickEnabledPropertyName, "No", false,
-                new MM::ActionLambda([derived](MM::PropertyBase* pProp, MM::ActionType eAct) {
+                new MM::ActionLambda([derived, query, response](MM::PropertyBase* pProp, MM::ActionType eAct) {
                     std::ostringstream command;
-                    std::ostringstream response;
                     long tmp = 0;
                     if (eAct == MM::BeforeGet) {
                         if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                             return DEVICE_OK;
                         }
-                        command << "J " << derived->GetAxisLetterX() << "?";
-                        response << ":A " << derived->GetAxisLetterX() << "=";
-                        RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                        RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                         RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                         bool success = 0;
                         if (tmp) { // treat anything nozero as enabled when reading
@@ -212,19 +212,19 @@ private:
     void CreateJoystickInputProperty(const std::string& propertyName, const std::string& axisLetter) {
         T* derived = GetDerived();
 
+        const std::string query = "J " + axisLetter + "?";
+        const std::string command = "J " + axisLetter + "=";
+        const std::string response = ":A " + axisLetter + "=";
+
         derived->CreateStringProperty(
             propertyName.c_str(), g_JSCode_0, false,
-            new MM::ActionLambda([derived, axisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
-                std::ostringstream command;
-                std::ostringstream response;
+            new MM::ActionLambda([derived, query, command, response](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 long tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
-                    command << "J " << axisLetter << "?";
-                    response << ":A " << axisLetter << "=";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     bool success = 0;
                     switch (tmp) {
@@ -269,8 +269,7 @@ private:
                     } else {
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
-                    command << "J " << axisLetter << "=" << tmp;
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command + std::to_string(tmp), ":A"));
                 }
                 return DEVICE_OK;
             }
@@ -287,17 +286,18 @@ private:
     void CreateJoystickFastSpeedProperty() {
         T* derived = GetDerived();
 
+        const std::string query = derived->GetAddressChar() + "JS X?";
+
         derived->CreateFloatProperty(
             g_JoystickFastSpeedPropertyName, 100.0, false,
-            new MM::ActionLambda([derived](MM::PropertyBase* pProp, MM::ActionType eAct) {
+            new MM::ActionLambda([derived, query](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 std::ostringstream command;
                 double tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
-                    command << derived->GetAddressChar() << "JS X?";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A X="));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, ":A X="));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     tmp = std::abs(tmp);
                     if (!pProp->Set(tmp)) {
@@ -325,17 +325,18 @@ private:
     void CreateJoystickSlowSpeedProperty() {
         T* derived = GetDerived();
 
+        const std::string query = derived->GetAddressChar() + "JS Y?";
+
         derived->CreateFloatProperty(
             g_JoystickSlowSpeedPropertyName, 10.0, false,
-            new MM::ActionLambda([derived](MM::PropertyBase* pProp, MM::ActionType eAct) {
+            new MM::ActionLambda([derived, query](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 std::ostringstream command;
                 double tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
-                    command << derived->GetAddressChar() << "JS Y?";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A Y="));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, ":A Y="));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     if (!pProp->Set(tmp)) {
                         return DEVICE_INVALID_PROPERTY_VALUE;
@@ -362,17 +363,19 @@ private:
     void CreateJoystickReverseProperty() {
         T* derived = GetDerived();
 
+        const std::string query = derived->GetAddressChar() + "JS X?";
+
         derived->CreateStringProperty(
             g_JoystickMirrorPropertyName, "No", false,
-            new MM::ActionLambda([derived](MM::PropertyBase* pProp, MM::ActionType eAct) {
+            new MM::ActionLambda([derived, query](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 std::ostringstream command;
                 double tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
-                    command << derived->GetAddressChar() << "JS X?";  // query only the fast setting to see if already mirrored
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A X="));
+                    // query only the fast setting to see if already mirrored
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, ":A X="));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     bool success = 0;
                     if (tmp < 0) { // speed negative <=> mirrored
@@ -466,17 +469,19 @@ private:
     void CreateWheelFastSpeedProperty() { 
         T* derived = GetDerived();
 
+        const std::string query = derived->GetAddressChar() + "JS F?";
+
         derived->CreateFloatProperty(
             g_WheelFastSpeedPropertyName, 10.0, false,
-            new MM::ActionLambda([derived](MM::PropertyBase* pProp, MM::ActionType eAct) {
+            new MM::ActionLambda([derived, query](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 std::ostringstream command;
                 double tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
-                    command << derived->GetAddressChar() << "JS F?";  // query only the fast setting to see if already mirrored
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A F="));
+                    // query only the fast setting to see if already mirrored
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, ":A F="));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     tmp = std::abs(tmp);
                     if (!pProp->Set(tmp)) {
@@ -504,17 +509,18 @@ private:
     void CreateWheelSlowSpeedProperty() {
         T* derived = GetDerived();
 
+        const std::string query = derived->GetAddressChar() + "JS T?";
+
         derived->CreateFloatProperty(
             g_WheelSlowSpeedPropertyName, 5.0, false,
-            new MM::ActionLambda([derived](MM::PropertyBase* pProp, MM::ActionType eAct) {
+            new MM::ActionLambda([derived, query](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 std::ostringstream command;
                 double tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
-                    command << derived->GetAddressChar() << "JS T?";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A T="));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, ":A T="));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     tmp = std::abs(tmp);
                     if (!pProp->Set(tmp)) {
@@ -542,17 +548,19 @@ private:
     void CreateWheelReverseProperty() {
         T* derived = GetDerived();
 
+        const std::string query = derived->GetAddressChar() + "JS F?";
+
         derived->CreateStringProperty(
             g_WheelMirrorPropertyName, "No", false,
-            new MM::ActionLambda([derived](MM::PropertyBase* pProp, MM::ActionType eAct) {
+            new MM::ActionLambda([derived, query](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 std::ostringstream command;
                 double tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
-                    command << derived->GetAddressChar() << "JS F?";  // query only the fast setting to see if already mirrored
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A F="));
+                    // query only the fast setting to see if already mirrored
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, ":A F="));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     bool success = 0;
                     if (tmp < 0) { // speed negative <=> mirrored
