@@ -25,6 +25,7 @@
 
 #include "ASITiger.h"
 
+#include <array>
 #include <cmath> // for std::abs
 #include <iostream>
 #include <sstream>
@@ -165,27 +166,24 @@ private:
                         }
                         RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                         RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
-                        bool success = 0;
-                        if (tmp) { // treat anything nozero as enabled when reading
-                            success = pProp->Set("Yes");
-                        } else {
-                            success = pProp->Set("No");
-                        }
+                        // treat anything nozero as enabled when reading
+                        const bool success = pProp->Set(tmp ? "Yes" : "No");
                         if (!success) {
                             return DEVICE_INVALID_PROPERTY_VALUE;
                         }
                     } else if (eAct == MM::AfterSet) {
-                        std::string tmpstr;
-                        pProp->Get(tmpstr);
-                        if (tmpstr == "Yes") {
-                            char joystickRotate[MM::MaxStrLength];
-                            RETURN_ON_MM_ERROR(derived->GetProperty(g_JoystickRotatePropertyName, joystickRotate));
-                            if (strcmp(joystickRotate, "Yes") == 0) {
+                        std::string isEnabled;
+                        pProp->Get(isEnabled);
+                        if (isEnabled == "Yes") {
+                            std::array<char, MM::MaxStrLength + 1> buffer;
+                            RETURN_ON_MM_ERROR(derived->GetProperty(g_JoystickRotatePropertyName, buffer.data()));
+                            const std::string joystickRotate(buffer.data());
+                            if (joystickRotate == "Yes") {
                                 command << "J " << derived->GetAxisLetterX() << "=3" << " " << derived->GetAxisLetterY() << "=2";  // rotated
                             } else {
                                 command << "J " << derived->GetAxisLetterX() << "=2" << " " << derived->GetAxisLetterY() << "=3";
                             }
-                        } else { // No = disabled
+                        } else { // "No" == disabled
                             command << "J " << derived->GetAxisLetterX() << "=0" << " " << derived->GetAxisLetterY() << "=0";
                         }
                         RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
@@ -296,9 +294,10 @@ private:
                     }
                 } else if (eAct == MM::AfterSet) {
                     pProp->Get(tmp);
-                    char joystickMirror[MM::MaxStrLength];
-                    RETURN_ON_MM_ERROR(derived->GetProperty(g_JoystickMirrorPropertyName, joystickMirror));
-                    if (strcmp(joystickMirror, "Yes") == 0) {
+                    std::array<char, MM::MaxStrLength + 1> buffer;
+                    RETURN_ON_MM_ERROR(derived->GetProperty(g_JoystickMirrorPropertyName, buffer.data()));
+                    const std::string joystickReverse(buffer.data());
+                    if (joystickReverse == "Yes") {
                         command << derived->GetAddressChar() << "JS X=-" << tmp;
                     } else {
                         command << derived->GetAddressChar() << "JS X=" << tmp;
@@ -334,9 +333,10 @@ private:
                     }
                 } else if (eAct == MM::AfterSet) {
                     pProp->Get(tmp);
-                    char joystickMirror[MM::MaxStrLength];
-                    RETURN_ON_MM_ERROR(derived->GetProperty(g_JoystickMirrorPropertyName, joystickMirror));
-                    if (strcmp(joystickMirror, "Yes") == 0) {
+                    std::array<char, MM::MaxStrLength + 1> buffer;
+                    RETURN_ON_MM_ERROR(derived->GetProperty(g_JoystickMirrorPropertyName, buffer.data()));
+                    const std::string joystickReverse(buffer.data());
+                    if (joystickReverse == "Yes") {
                         command << derived->GetAddressChar() << "JS Y=-" << tmp;
                     } else {
                         command << derived->GetAddressChar() << "JS Y=" << tmp;
@@ -368,23 +368,19 @@ private:
                     // query only the fast setting to see if already mirrored
                     RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, ":A X="));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
-                    bool success = 0;
-                    if (tmp < 0) { // speed negative <=> mirrored
-                        success = pProp->Set("Yes");
-                    } else {
-                        success = pProp->Set("No");
-                    }
+                    // speed negative <=> mirrored
+                    const bool success = pProp->Set((tmp < 0) ? "Yes" : "No");
                     if (!success) {
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
                 } else if (eAct == MM::AfterSet) {
-                    std::string tmpstr;
-                    pProp->Get(tmpstr);
+                    std::string isReversed;
+                    pProp->Get(isReversed);
                     double joystickFast = 0.0;
                     RETURN_ON_MM_ERROR(derived->GetProperty(g_JoystickFastSpeedPropertyName, joystickFast));
                     double joystickSlow = 0.0;
                     RETURN_ON_MM_ERROR(derived->GetProperty(g_JoystickSlowSpeedPropertyName, joystickSlow));
-                    if (tmpstr == "Yes") {
+                    if (isReversed == "Yes") {
                         command << derived->GetAddressChar() << "JS X=-" << joystickFast << " Y=-" << joystickSlow;
                     } else {
                         command << derived->GetAddressChar() << "JS X=" << joystickFast << " Y=" << joystickSlow;
@@ -404,42 +400,39 @@ private:
         if constexpr (HasGetAxisLetterX<T>::value && HasGetAxisLetterY<T>::value) {
             T* derived = GetDerived();
 
+            const std::string query = "J " + derived->GetAxisLetterX() + "?";
+            const std::string response = ":A " + derived->GetAxisLetterX() + "=";
+
             derived->CreateStringProperty(
                 g_JoystickRotatePropertyName, "No", false,
-                new MM::ActionLambda([derived](MM::PropertyBase* pProp, MM::ActionType eAct) {
+                new MM::ActionLambda([derived, query, response](MM::PropertyBase* pProp, MM::ActionType eAct) {
                     std::ostringstream command;
-                    std::ostringstream response;
                     double tmp = 0;
                     if (eAct == MM::BeforeGet) {
                         if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                             return DEVICE_OK;
                         }
-                        command << "J " << derived->GetAxisLetterX() << "?";  // only look at X axis for joystick
-                        response << ":A " << derived->GetAxisLetterX() << "=";
-                        RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                        // only look at X axis for joystick
+                        RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                         RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
-                        bool success = 0;
-                        if (tmp == 3) { // if set to be Y joystick direction then we are rotated, otherwise assume not rotated
-                            success = pProp->Set("Yes");
-                        } else {
-                            success = pProp->Set("No");
-                        }
+                        // if set to be Y joystick direction then we are rotated, otherwise assume not rotated
+                        const bool success = pProp->Set((tmp == 3) ? "Yes" : "No");
                         if (!success) {
                             return DEVICE_INVALID_PROPERTY_VALUE;
                         }
                     } else if (eAct == MM::AfterSet) {
-                        // ideally would call OnJoystickEnableDisable but don't know how to get the appropriate pProp
-                        std::string tmpstr;
-                        pProp->Get(tmpstr);
-                        char joystickEnabled[MM::MaxStrLength];
-                        RETURN_ON_MM_ERROR(derived->GetProperty(g_JoystickEnabledPropertyName, joystickEnabled));
-                        if (strcmp(joystickEnabled, "Yes") == 0) {
-                            if (tmpstr == "Yes") {
-                                command << "J " << derived->GetAxisLetterX() << "=3" << " " << derived->GetAxisLetterY() << "=2";  // rotated
+                        std::string isRotated;
+                        pProp->Get(isRotated);
+                        std::array<char, MM::MaxStrLength + 1> buffer;
+                        RETURN_ON_MM_ERROR(derived->GetProperty(g_JoystickEnabledPropertyName, buffer.data()));
+                        const std::string joystickEnabled(buffer.data());
+                        if (joystickEnabled == "Yes") {
+                            if (isRotated == "Yes") {
+                                command << "J " << derived->GetAxisLetterX() << "=3" << " " << derived->GetAxisLetterY() << "=2";
                             } else {
                                 command << "J " << derived->GetAxisLetterX() << "=2" << " " << derived->GetAxisLetterY() << "=3";
                             }
-                        } else { // No = disabled
+                        } else { // "No" == disabled
                             command << "J " << derived->GetAxisLetterX() << "=0" << " " << derived->GetAxisLetterY() << "=0";
                         }
                         RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
@@ -480,9 +473,10 @@ private:
                     }
                 } else if (eAct == MM::AfterSet) {
                     pProp->Get(tmp);
-                    char wheelMirror[MM::MaxStrLength];
-                    RETURN_ON_MM_ERROR(derived->GetProperty(g_WheelMirrorPropertyName, wheelMirror));
-                    if (strcmp(wheelMirror, "Yes") == 0) {
+                    std::array<char, MM::MaxStrLength + 1> buffer;
+                    RETURN_ON_MM_ERROR(derived->GetProperty(g_WheelMirrorPropertyName, buffer.data()));
+                    const std::string wheelReverse(buffer.data());
+                    if (wheelReverse == "Yes") {
                         command << derived->GetAddressChar() << "JS F=-" << tmp;
                     } else {
                         command << derived->GetAddressChar() << "JS F=" << tmp;
@@ -519,9 +513,10 @@ private:
                     }
                 } else if (eAct == MM::AfterSet) {
                     pProp->Get(tmp);
-                    char wheelMirror[MM::MaxStrLength];
-                    RETURN_ON_MM_ERROR(derived->GetProperty(g_WheelMirrorPropertyName, wheelMirror));
-                    if (strcmp(wheelMirror, "Yes") == 0) {
+                    std::array<char, MM::MaxStrLength + 1> buffer;
+                    RETURN_ON_MM_ERROR(derived->GetProperty(g_WheelMirrorPropertyName, buffer.data()));
+                    const std::string wheelReverse(buffer.data());
+                    if (wheelReverse == "Yes") {
                         command << derived->GetAddressChar() << "JS T=-" << tmp;
                     }  else {
                         command << derived->GetAddressChar() << "JS T=" << tmp;
@@ -553,12 +548,8 @@ private:
                     // query only the fast setting to see if already mirrored
                     RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, ":A F="));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
-                    bool success = 0;
-                    if (tmp < 0) { // speed negative <=> mirrored
-                        success = pProp->Set("Yes");
-                    }  else {
-                        success = pProp->Set("No");
-                    }
+                    // speed negative <=> mirrored
+                    const bool success = pProp->Set((tmp < 0) ? "Yes" : "No");
                     if (!success) {
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
