@@ -25,8 +25,6 @@
  
 #include "ASITiger.h"
 
-#include <iostream>
-#include <sstream>
 #include <string>
 
 // A mixin that adds ring buffer properties to an ASI device.
@@ -49,21 +47,21 @@ private:
     void CreateRingBufferModeProperty() {
         T* derived = GetDerived();
 
-        const std::string pseudoAxisLetter = derived->FirmwareVersionAtLeast(2.89) ? "F" : "X";
+        const std::string axisLetter = derived->FirmwareVersionAtLeast(2.89) ? "F" : "X";
+
+        const std::string query = derived->GetAddressChar() + "RM " + axisLetter + "?";
+        const std::string command = derived->GetAddressChar() + "RM " + axisLetter + "=";
+        const std::string response = ":A " + axisLetter + "=";
 
         derived->CreateStringProperty(
             g_RB_ModePropertyName, g_RB_OnePoint_1, false,
-            new MM::ActionLambda([derived, pseudoAxisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
-                std::ostringstream command;
-                std::ostringstream response;
+            new MM::ActionLambda([derived, query, command, response](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 long tmp;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
-                    command << derived->GetAddressChar() << "RM " << pseudoAxisLetter << "?";
-                    response << ":A " << pseudoAxisLetter << "=";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     if (tmp >= 128) {
                         tmp -= 128;  // remove the "running now" code if present
@@ -107,8 +105,7 @@ private:
                     } else {
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
-                    command << derived->GetAddressChar() << "RM " << pseudoAxisLetter << "=" << tmp;
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command + std::to_string(tmp), ":A"));
                     RETURN_ON_MM_ERROR(derived->GetHub()->UpdateSharedProperties(derived->GetAddressChar(), pProp->GetName(), tmpstr.c_str()));
                 }
                 return DEVICE_OK;
@@ -129,17 +126,18 @@ private:
     void CreateRingBufferDelayProperty() {
         T* derived = GetDerived();
 
+        const std::string query = derived->GetAddressChar() + "RT Z?";
+        const std::string command = derived->GetAddressChar() + "RT Z=";
+
         derived->CreateIntegerProperty(
             g_RB_DelayPropertyName, 0, false,
-            new MM::ActionLambda([derived](MM::PropertyBase* pProp, MM::ActionType eAct) {
-                std::ostringstream command;
+            new MM::ActionLambda([derived, query, command](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 long tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
-                    command << derived->GetAddressChar() << "RT Z?";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A Z="));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, ":A Z="));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     if (!pProp->Set(tmp)) {
                         return DEVICE_INVALID_PROPERTY_VALUE;
@@ -149,11 +147,9 @@ private:
                         return DEVICE_OK;
                     }
                     pProp->Get(tmp);
-                    command << derived->GetAddressChar() << "RT Z=" << tmp;
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
-                    command.str("");
-                    command << tmp;
-                    RETURN_ON_MM_ERROR(derived->GetHub()->UpdateSharedProperties(derived->GetAddressChar(), pProp->GetName(), command.str()));
+                    const std::string tmpstr = std::to_string(tmp);
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command + tmpstr, ":A"));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->UpdateSharedProperties(derived->GetAddressChar(), pProp->GetName(), tmpstr));
                 }
                 return DEVICE_OK;
             }
@@ -164,9 +160,11 @@ private:
     void CreateRingBufferTriggerProperty() {
         T* derived = GetDerived();
 
+        const std::string command = derived->GetAddressChar() + "RM";
+
         derived->CreateStringProperty(
             g_RB_TriggerPropertyName, g_IdleState, false,
-            new MM::ActionLambda([derived](MM::PropertyBase* pProp, MM::ActionType eAct) {
+            new MM::ActionLambda([derived, command](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 if (eAct == MM::BeforeGet) {
                     pProp->Set(g_IdleState);
                 } else if (eAct == MM::AfterSet) {
@@ -176,9 +174,7 @@ private:
                     std::string tmpstr;
                     pProp->Get(tmpstr);
                     if (tmpstr == g_DoItState) {
-                        std::ostringstream command;
-                        command << derived->GetAddressChar() << "RM";
-                        RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
+                        RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command, ":A"));
                         pProp->Set(g_DoneState);
                     }
                 }
@@ -194,22 +190,21 @@ private:
     void CreateRingBufferAutoplayRunningProperty() {
         T* derived = GetDerived();
 
-        const std::string pseudoAxisLetter = derived->FirmwareVersionAtLeast(2.89) ? "F" : "X";
+        const std::string axisLetter = derived->FirmwareVersionAtLeast(2.89) ? "F" : "X";
+
+        const std::string query = derived->GetAddressChar() + "RM " + axisLetter + "?";
+        const std::string response = ":A " + axisLetter + "=";
 
         derived->CreateStringProperty(
             g_RB_AutoplayRunningPropertyName, "No", false,
-            new MM::ActionLambda([derived, pseudoAxisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
-                std::ostringstream command;
-                std::ostringstream response;
+            new MM::ActionLambda([derived, query, response](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 long tmp = 0;
                 static bool justSet;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized() && !justSet) {
                         return DEVICE_OK;
                     }
-                    command << derived->GetAddressChar() << "RM " << pseudoAxisLetter << "?";
-                    response << ":A " << pseudoAxisLetter << "=";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     bool success;
                     if (tmp >= 128) {
