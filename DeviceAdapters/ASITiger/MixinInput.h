@@ -145,15 +145,6 @@ public:
         }
     }
 
-    // Special case for ASIClocked devices which only need the "JoystickInput" property.
-    void MixinCreateInputPropertiesClocked() {
-        if constexpr (HasGetAxisLetter<T>::value) {
-            CreateJoystickInputProperty(g_JoystickSelectPropertyName, GetDerived()->GetAxisLetter());
-        } else {
-            static_assert(false, "ASIClocked requires the GetAxisLetter() function.");
-        }
-    }
-
 private:
     // Joystick enable and disable, requires 2 axes.
     void CreateJoystickEnabledProperty() {
