@@ -23,6 +23,12 @@
 #ifndef MIXIN_RINGBUFFER_H
 #define MIXIN_RINGBUFFER_H
  
+#include "ASITiger.h"
+
+#include <iostream>
+#include <sstream>
+#include <string>
+
 // A mixin that adds ring buffer properties to an ASI device.
 template <typename T>
 class MixinRingBuffer {
@@ -31,6 +37,7 @@ private:
     const T* GetDerived() const { return static_cast<const T*>(this); }
 
 public:
+    // Create ring buffer properties, call this in type T's Initialize() function.
     void MixinCreateRingBufferProperties() {
         CreateRingBufferModeProperty();
         CreateRingBufferDelayProperty();
@@ -123,7 +130,7 @@ private:
         T* derived = GetDerived();
 
         derived->CreateIntegerProperty(
-            g_RB_ModePropertyName, 0, false,
+            g_RB_DelayPropertyName, 0, false,
             new MM::ActionLambda([derived](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 std::ostringstream command;
                 long tmp = 0;

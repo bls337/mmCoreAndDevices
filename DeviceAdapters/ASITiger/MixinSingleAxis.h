@@ -25,8 +25,6 @@
 
 #include "ASITiger.h"
 
-#include <iostream>
-#include <sstream>
 #include <string>
 
 // A mixin that adds single axis properties to an ASI device.
@@ -60,31 +58,32 @@ public:
     }
 
 private:
+    // "SingleAxisAmplitude(um)"
     void CreateSingleAxisAmplitudeProperty(const std::string& propertyName, const std::string& axisLetter) {
         T* derived = GetDerived();
 
+        const std::string query = "SAA " + axisLetter + "?";
+        const std::string command = "SAA " + axisLetter + "=";
+        const std::string response = ":A " + axisLetter + "=";
+
         derived->CreateFloatProperty(
             propertyName.c_str(), 0.0, false,
-            new MM::ActionLambda([derived, axisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
-                std::ostringstream command;
+            new MM::ActionLambda([derived, query, command, response](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 double tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
-                    std::ostringstream response;
-                    command << "SAA " << axisLetter << "?";
-                    response << ":A " << axisLetter << "=";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
-                    tmp = tmp / derived->GetUnitMult();
+                    tmp /= derived->GetUnitMult();
                     if (!pProp->Set(tmp)) {
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
                 } else if (eAct == MM::AfterSet) {
                     pProp->Get(tmp);
-                    command << "SAA " << axisLetter << "=" << tmp * derived->GetUnitMult();
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
+                    tmp *= derived->GetUnitMult();
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command + std::to_string(tmp), ":A"));
                 }
                 return DEVICE_OK;
             }
@@ -92,31 +91,32 @@ private:
         derived->UpdateProperty(propertyName.c_str());
     }
 
+    // "SingleAxisOffset(um)"
     void CreateSingleAxisOffsetProperty(const std::string& propertyName, const std::string& axisLetter) {
         T* derived = GetDerived();
 
+        const std::string query = "SAO " + axisLetter + "?";
+        const std::string command = "SAO " + axisLetter + "=";
+        const std::string response = ":A " + axisLetter + "=";
+
         derived->CreateFloatProperty(
             propertyName.c_str(), 0.0, false,
-            new MM::ActionLambda([derived, axisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
-                std::ostringstream command;
+            new MM::ActionLambda([derived, query, command, response](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 double tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
-                    std::ostringstream response;
-                    command << "SAO " << axisLetter << "?";
-                    response << ":A " << axisLetter << "=";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
-                    tmp = tmp / derived->GetUnitMult();
+                    tmp /= derived->GetUnitMult();
                     if (!pProp->Set(tmp)) {
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
                 } else if (eAct == MM::AfterSet) {
                     pProp->Get(tmp);
-                    command << "SAO " << axisLetter << "=" << tmp * derived->GetUnitMult();
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
+                    tmp *= derived->GetUnitMult();
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command + std::to_string(tmp), ":A"));
                 }
                 return DEVICE_OK;
             }
@@ -124,30 +124,30 @@ private:
         derived->UpdateProperty(propertyName.c_str());
     }
 
+    // "SingleAxisPeriod(ms)"
     void CreateSingleAxisPeriodProperty(const std::string& propertyName, const std::string& axisLetter) {
         T* derived = GetDerived();
 
+        const std::string query = "SAF " + axisLetter + "?";
+        const std::string command = "SAF " + axisLetter + "=";
+        const std::string response = ":A " + axisLetter + "=";
+
         derived->CreateIntegerProperty(
             propertyName.c_str(), 0, false,
-            new MM::ActionLambda([derived, axisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
-                std::ostringstream command;
+            new MM::ActionLambda([derived, query, command, response](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 long tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
-                    std::ostringstream response;
-                    command << "SAF " << axisLetter << "?";
-                    response << ":A " << axisLetter << "=";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     if (!pProp->Set(tmp)) {
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
                 } else if (eAct == MM::AfterSet) {
                     pProp->Get(tmp);
-                    command << "SAF " << axisLetter << "=" << tmp;
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command + std::to_string(tmp), ":A"));
                 }
                 return DEVICE_OK;
             }
@@ -155,23 +155,24 @@ private:
         derived->UpdateProperty(propertyName.c_str());
     }
 
+    // "SingleAxisMode"
     void CreateSingleAxisModeProperty(const std::string& propertyName, const std::string& axisLetter) {
         T* derived = GetDerived();
 
+        const std::string query = "SAM " + axisLetter + "?";
+        const std::string command = "SAM " + axisLetter + "=";
+        const std::string response = ":A " + axisLetter + "=";
+
         derived->CreateStringProperty(
             propertyName.c_str(), g_SAMode_0, false,
-            new MM::ActionLambda([derived, axisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
+            new MM::ActionLambda([derived, query, command, response](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 static bool justSet = false;
-                std::ostringstream command;
                 long tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized() && !justSet) {
                         return DEVICE_OK;
                     }
-                    std::ostringstream response;
-                    command << "SAM " << axisLetter << "?";
-                    response << ":A " << axisLetter << "=";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     bool success;
                     switch (tmp) {
@@ -209,8 +210,7 @@ private:
                     } else {
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
-                    command << "SAM " << axisLetter << "=" << tmp;
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command + std::to_string(tmp), ":A"));
                     // get the updated value right away
                     justSet = true;
                     // FIXME: how to do this in the mixin
@@ -227,22 +227,23 @@ private:
         derived->UpdateProperty(propertyName.c_str());
     }
 
+    // "SingleAxisPattern"
     void CreateSingleAxisPatternProperty(const std::string& propertyName, const std::string& axisLetter) {
         T* derived = GetDerived();
 
+        const std::string query = "SAP " + axisLetter + "?";
+        const std::string command = "SAP " + axisLetter + "=";
+        const std::string response = ":A " + axisLetter + "=";
+
         derived->CreateStringProperty(
             propertyName.c_str(), g_SAPattern_0, false,
-            new MM::ActionLambda([derived, axisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
-                std::ostringstream command;
-                std::ostringstream response;
+            new MM::ActionLambda([derived, query, command, response](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 long tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
-                    command << "SAP " << axisLetter << "?";
-                    response << ":A " << axisLetter << "=";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     bool success;
                     tmp = tmp & ((long)(BIT2 | BIT1 | BIT0));  // zero all but the lowest 3 bits
@@ -281,16 +282,12 @@ private:
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
                     // have to get current settings and then modify bits 0-2 from there
-                    command << "SAP " << axisLetter << "?";
-                    response << ":A " << axisLetter << "=";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                     long current;
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(current));
                     current = current & (~(long)(BIT2 | BIT1 | BIT0));  // set lowest 3 bits to zero
                     tmp += current;
-                    command.str("");
-                    command << "SAP " << axisLetter << "=" << tmp;
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command + std::to_string(tmp), ":A"));
                 }
                 return DEVICE_OK;
             }
@@ -304,6 +301,7 @@ private:
         derived->UpdateProperty(propertyName.c_str());
     }
 
+    // "SingleAxisAdvancedPropertiesEnable"
     void CreateSingleAxisAdvancedProperties(const std::string& propertyName, const std::string& axisLetter) {
         T* derived = GetDerived();
 
@@ -338,19 +336,19 @@ private:
     void CreateSingleAxisClockSourceProperty(const std::string& propertyName, const std::string& axisLetter) {
         T* derived = GetDerived();
 
+        const std::string query = "SAP " + axisLetter + "?";
+        const std::string command = "SAP " + axisLetter + "=";
+        const std::string response = ":A " + axisLetter + "=";
+
         derived->CreateStringProperty(
             propertyName.c_str(), g_SAClkSrc_0, false,
-            new MM::ActionLambda([derived, axisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
-                std::ostringstream command;
-                std::ostringstream response;
+            new MM::ActionLambda([derived, query, command, response](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 long tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
-                    command << "SAP " << axisLetter << "?";
-                    response << ":A " << axisLetter << "=";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     bool success;
                     tmp = tmp & ((long)(BIT7));  // zero all but bit 7
@@ -367,7 +365,7 @@ private:
                     }
                     if (!success) {
                         return DEVICE_INVALID_PROPERTY_VALUE;
-                        }
+                    }
                 } else if (eAct == MM::AfterSet) {
                     std::string tmpstr;
                     pProp->Get(tmpstr);
@@ -379,16 +377,12 @@ private:
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
                     // have to get current settings and then modify bit 7 from there
-                    command << "SAP " << axisLetter << "?";
-                    response << ":A " << axisLetter << "=";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                     long current;
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(current));
                     current = current & (~(long)(BIT7));  // clear bit 7
                     tmp += current;
-                    command.str("");
-                    command << "SAP " << axisLetter << "=" << tmp;
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command, ":A"));
                 }
                 return DEVICE_OK;
             }
@@ -401,19 +395,19 @@ private:
     void CreateSingleAxisClockPolarityProperty(const std::string& propertyName, const std::string& axisLetter) {
         T* derived = GetDerived();
 
+        const std::string query = "SAP " + axisLetter + "?";
+        const std::string command = "SAP " + axisLetter + "=";
+        const std::string response = ":A " + axisLetter + "=";
+
         derived->CreateStringProperty(
             propertyName.c_str(), g_SAClkPol_0, false,
-            new MM::ActionLambda([derived, axisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
-                std::ostringstream command;
-                std::ostringstream response;
+            new MM::ActionLambda([derived, query, command, response](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 long tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
-                    command << "SAP " << axisLetter << "?";
-                    response << ":A " << axisLetter << "=";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     bool success;
                     tmp = tmp & ((long)(BIT6));  // zero all but bit 6
@@ -442,16 +436,12 @@ private:
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
                     // have to get current settings and then modify bit 6 from there
-                    command << "SAP " << axisLetter << "?";
-                    response << ":A " << axisLetter << "=";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                     long current;
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(current));
                     current = current & (~(long)(BIT6));  // clear bit 6
                     tmp += current;
-                    command.str("");
-                    command << "SAP " << axisLetter << "=" << tmp;
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command, ":A"));
                 }
                 return DEVICE_OK;
             }
@@ -464,19 +454,19 @@ private:
     void CreateSingleAxisTTLOutputProperty(const std::string& propertyName, const std::string& axisLetter) {
         T* derived = GetDerived();
 
+        const std::string query = "SAP " + axisLetter + "?";
+        const std::string command = "SAP " + axisLetter + "=";
+        const std::string response = ":A " + axisLetter + "=";
+
         derived->CreateStringProperty(
             propertyName.c_str(), g_SATTLOut_0, false,
-            new MM::ActionLambda([derived, axisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
-                std::ostringstream command;
-                std::ostringstream response;
+            new MM::ActionLambda([derived, query, command, response](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 long tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
-                    command << "SAP " << axisLetter << "?";
-                    response << ":A " << axisLetter << "=";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     bool success;
                     tmp = tmp & ((long)(BIT5));  // zero all but bit 5
@@ -505,16 +495,12 @@ private:
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
                     // have to get current settings and then modify bit 5 from there
-                    command << "SAP " << axisLetter << "?";
-                    response << ":A " << axisLetter << "=";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                     long current;
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(current));
                     current = current & (~(long)(BIT5));  // clear bit 5
                     tmp += current;
-                    command.str("");
-                    command << "SAP " << axisLetter << "=" << tmp;
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command, ":A"));
                 }
                 return DEVICE_OK;
             }
@@ -527,19 +513,19 @@ private:
     void CreateSingleAxisTTLPolarityProperty(const std::string& propertyName, const std::string& axisLetter) {
         T* derived = GetDerived();
 
+        const std::string query = "SAP " + axisLetter + "?";
+        const std::string command = "SAP " + axisLetter + "=";
+        const std::string response = ":A " + axisLetter + "=";
+
         derived->CreateStringProperty(
             propertyName.c_str(), g_SATTLPol_0, false,
-            new MM::ActionLambda([derived, axisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
-                std::ostringstream command;
-                std::ostringstream response;
+            new MM::ActionLambda([derived, query, command, response](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 long tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
                         return DEVICE_OK;
                     }
-                    command << "SAP " << axisLetter << "?";
-                    response << ":A " << axisLetter << "=";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     bool success;
                     tmp = tmp & ((long)(BIT4));  // zero all but bit 4
@@ -568,16 +554,12 @@ private:
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
                     // have to get current settings and then modify bit 4 from there
-                    command << "SAP " << axisLetter << "?";
-                    response << ":A " << axisLetter << "=";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                     long current;
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(current));
                     current = current & (~(long)(BIT4));  // clear bit 4
                     tmp += current;
-                    command.str("");
-                    command << "SAP " << axisLetter << "=" << tmp;
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command, ":A"));
                 }
                 return DEVICE_OK;
             }
@@ -590,25 +572,24 @@ private:
     void CreateSingleAxisPatternByteProperty(const std::string& propertyName, const std::string& axisLetter) {
         T* derived = GetDerived();
 
+        const std::string query = "SAP " + axisLetter + "?";
+        const std::string command = "SAP " + axisLetter + "=";
+        const std::string response = ":A " + axisLetter + "=";
+
         derived->CreateIntegerProperty(
             propertyName.c_str(), 0, false,
-            new MM::ActionLambda([derived, axisLetter](MM::PropertyBase* pProp, MM::ActionType eAct) {
+            new MM::ActionLambda([derived, query, command, response](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 // get every single time
-                std::ostringstream command;
-                std::ostringstream response;
                 long tmp = 0;
                 if (eAct == MM::BeforeGet) {
-                    command << "SAP " << axisLetter << "?";
-                    response << ":A " << axisLetter << "=";
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), response.str()));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, response));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
                     if (!pProp->Set(tmp)) {
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
                 } else if (eAct == MM::AfterSet) {
                     pProp->Get(tmp);
-                    command << "SAP " << axisLetter << "=" << tmp;
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command, ":A"));
                 }
                 return DEVICE_OK;
             }
