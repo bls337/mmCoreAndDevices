@@ -382,7 +382,7 @@ private:
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(current));
                     current = current & (~(long)(BIT7));  // clear bit 7
                     tmp += current;
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command, ":A"));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command + std::to_string(tmp), ":A"));
                 }
                 return DEVICE_OK;
             }
@@ -441,7 +441,7 @@ private:
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(current));
                     current = current & (~(long)(BIT6));  // clear bit 6
                     tmp += current;
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command, ":A"));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command + std::to_string(tmp), ":A"));
                 }
                 return DEVICE_OK;
             }
@@ -500,7 +500,7 @@ private:
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(current));
                     current = current & (~(long)(BIT5));  // clear bit 5
                     tmp += current;
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command, ":A"));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command + std::to_string(tmp), ":A"));
                 }
                 return DEVICE_OK;
             }
@@ -559,7 +559,7 @@ private:
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(current));
                     current = current & (~(long)(BIT4));  // clear bit 4
                     tmp += current;
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command, ":A"));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command + std::to_string(tmp), ":A"));
                 }
                 return DEVICE_OK;
             }
@@ -589,7 +589,7 @@ private:
                     }
                 } else if (eAct == MM::AfterSet) {
                     pProp->Get(tmp);
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command, ":A"));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command + std::to_string(tmp), ":A"));
                 }
                 return DEVICE_OK;
             }
