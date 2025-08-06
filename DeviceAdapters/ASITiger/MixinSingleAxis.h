@@ -292,6 +292,7 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->AddAllowedValue(propertyName.c_str(), g_SAPattern_0);
         derived->AddAllowedValue(propertyName.c_str(), g_SAPattern_1);
         derived->AddAllowedValue(propertyName.c_str(), g_SAPattern_2);
@@ -387,6 +388,7 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->AddAllowedValue(propertyName.c_str(), g_SAClkSrc_0);
         derived->AddAllowedValue(propertyName.c_str(), g_SAClkSrc_1);
         derived->UpdateProperty(propertyName.c_str());
@@ -446,6 +448,7 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->AddAllowedValue(propertyName.c_str(), g_SAClkPol_0);
         derived->AddAllowedValue(propertyName.c_str(), g_SAClkPol_1);
         derived->UpdateProperty(propertyName.c_str());
@@ -505,6 +508,7 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->AddAllowedValue(propertyName.c_str(), g_SATTLOut_0);
         derived->AddAllowedValue(propertyName.c_str(), g_SATTLOut_1);
         derived->UpdateProperty(propertyName.c_str());
@@ -564,6 +568,7 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->AddAllowedValue(propertyName.c_str(), g_SATTLPol_0);
         derived->AddAllowedValue(propertyName.c_str(), g_SATTLPol_1);
         derived->UpdateProperty(propertyName.c_str());
@@ -594,6 +599,7 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->SetPropertyLimits(propertyName.c_str(), 0, 255);
         derived->UpdateProperty(propertyName.c_str());
     }

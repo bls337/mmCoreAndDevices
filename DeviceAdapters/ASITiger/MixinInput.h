@@ -147,7 +147,7 @@ public:
     }
 
 private:
-    // Joystick enable and disable, requires 2 axes.
+    // "JoystickEnabled" (requires 2 axes)
     void CreateJoystickEnabledProperty() {
         if constexpr (HasGetAxisLetterX<T>::value && HasGetAxisLetterY<T>::value) {
             T* derived = GetDerived();
@@ -191,6 +191,7 @@ private:
                     return DEVICE_OK;
                 }
              ));
+
             derived->AddAllowedValue(g_JoystickEnabledPropertyName, "No");
             derived->AddAllowedValue(g_JoystickEnabledPropertyName, "Yes");
             derived->UpdateProperty(g_JoystickEnabledPropertyName);
@@ -263,6 +264,7 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->AddAllowedValue(propertyName.c_str(), g_JSCode_0);
         derived->AddAllowedValue(propertyName.c_str(), g_JSCode_2);
         derived->AddAllowedValue(propertyName.c_str(), g_JSCode_3);
@@ -271,7 +273,7 @@ private:
         derived->UpdateProperty(propertyName.c_str());
     }
 
-    // Joystick fast speed (JS X)
+    // "JoystickFastSpeed" (JS X)
     void CreateJoystickFastSpeedProperty() {
         T* derived = GetDerived();
 
@@ -288,8 +290,7 @@ private:
                     }
                     RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, ":A X="));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
-                    tmp = std::abs(tmp);
-                    if (!pProp->Set(tmp)) {
+                    if (!pProp->Set(std::abs(tmp))) {
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
                 } else if (eAct == MM::AfterSet) {
@@ -307,11 +308,12 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->SetPropertyLimits(g_JoystickFastSpeedPropertyName, 0.0, 100.0);
         derived->UpdateProperty(g_JoystickFastSpeedPropertyName);
     }
 
-    // Joystick slow speed (JS Y)
+    // "JoystickSlowSpeed" (JS Y)
     void CreateJoystickSlowSpeedProperty() {
         T* derived = GetDerived();
 
@@ -346,11 +348,12 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->SetPropertyLimits(g_JoystickSlowSpeedPropertyName, 0.0, 100.0);
         derived->UpdateProperty(g_JoystickSlowSpeedPropertyName);
     }
 
-    // Joystick reverse (changes joystick fast/slow speeds to negative)
+    // "JoystickReverse" (changes joystick fast/slow speeds to negative)
     void CreateJoystickReverseProperty() {
         T* derived = GetDerived();
 
@@ -368,7 +371,7 @@ private:
                     // query only the fast setting to see if already mirrored
                     RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, ":A X="));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
-                    // speed negative <=> mirrored
+                    // negative speed <=> mirrored
                     const bool success = pProp->Set((tmp < 0) ? "Yes" : "No");
                     if (!success) {
                         return DEVICE_INVALID_PROPERTY_VALUE;
@@ -390,12 +393,13 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->AddAllowedValue(g_JoystickMirrorPropertyName, "No");
         derived->AddAllowedValue(g_JoystickMirrorPropertyName, "Yes");
         derived->UpdateProperty(g_JoystickMirrorPropertyName);
     }
 
-    // Joystick rotate, requires 2 axes. (interchanges X and Y axes, useful if camera is rotated)
+    // "JoystickRotate" (requires 2 axes) (interchanges X and Y axes, useful if camera is rotated)
     void CreateJoystickRotateProperty() {
         if constexpr (HasGetAxisLetterX<T>::value && HasGetAxisLetterY<T>::value) {
             T* derived = GetDerived();
@@ -440,6 +444,7 @@ private:
                     return DEVICE_OK;
                 }
             ));
+
             derived->AddAllowedValue(g_JoystickRotatePropertyName, "No");
             derived->AddAllowedValue(g_JoystickRotatePropertyName, "Yes");
             derived->UpdateProperty(g_JoystickRotatePropertyName);
@@ -449,7 +454,7 @@ private:
     // ASI controller mirrors by having negative speed, but here we have separate property for mirroring
     // and for speed (which is strictly positive)... that makes this code a bit odd
  
-    // Wheel fast speed (JS F) (per-card, not per-axis)
+    // "WheelFastSpeed" (JS F) (per-card, not per-axis)
     void CreateWheelFastSpeedProperty() { 
         T* derived = GetDerived();
 
@@ -467,8 +472,7 @@ private:
                     // query only the fast setting to see if already mirrored
                     RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, ":A F="));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
-                    tmp = std::abs(tmp);
-                    if (!pProp->Set(tmp)) {
+                    if (!pProp->Set(std::abs(tmp))) {
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
                 } else if (eAct == MM::AfterSet) {
@@ -486,11 +490,12 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->SetPropertyLimits(g_WheelFastSpeedPropertyName, 0.0, 100.0);
         derived->UpdateProperty(g_WheelFastSpeedPropertyName);
     }
 
-    // Wheel slow speed (JS T) (per-card, not per-axis)
+    // "WheelSlowSpeed" (JS T) (per-card, not per-axis)
     void CreateWheelSlowSpeedProperty() {
         T* derived = GetDerived();
 
@@ -507,8 +512,7 @@ private:
                     }
                     RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, ":A T="));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
-                    tmp = std::abs(tmp);
-                    if (!pProp->Set(tmp)) {
+                    if (!pProp->Set(std::abs(tmp))) {
                         return DEVICE_INVALID_PROPERTY_VALUE;
                     }
                 } else if (eAct == MM::AfterSet) {
@@ -526,11 +530,12 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->SetPropertyLimits(g_WheelSlowSpeedPropertyName, 0.0, 100.0);
         derived->UpdateProperty(g_WheelSlowSpeedPropertyName);
     }
 
-    // Wheel reverse (changes wheel fast/slow speeds to negative, per-card, not per-axis)
+    // "WheelReverse" (changes wheel fast/slow speeds to negative, per-card, not per-axis)
     void CreateWheelReverseProperty() {
         T* derived = GetDerived();
 
@@ -548,7 +553,7 @@ private:
                     // query only the fast setting to see if already mirrored
                     RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(query, ":A F="));
                     RETURN_ON_MM_ERROR(derived->GetHub()->ParseAnswerAfterEquals(tmp));
-                    // speed negative <=> mirrored
+                    // negative speed <=> mirrored
                     const bool success = pProp->Set((tmp < 0) ? "Yes" : "No");
                     if (!success) {
                         return DEVICE_INVALID_PROPERTY_VALUE;
@@ -570,6 +575,7 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->AddAllowedValue(g_WheelMirrorPropertyName, "No");
         derived->AddAllowedValue(g_WheelMirrorPropertyName, "Yes");
         derived->UpdateProperty(g_WheelMirrorPropertyName);

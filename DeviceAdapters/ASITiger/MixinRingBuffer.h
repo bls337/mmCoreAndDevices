@@ -111,6 +111,7 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         if (derived->FirmwareVersionAtLeast(3.41)) {
             derived->AddAllowedValue(g_RB_ModePropertyName, g_RB_PlayConsume_0);
         }
@@ -154,6 +155,7 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->UpdateProperty(g_RB_DelayPropertyName);
     }
 
@@ -181,6 +183,7 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->AddAllowedValue(g_RB_TriggerPropertyName, g_IdleState, 0);
         derived->AddAllowedValue(g_RB_TriggerPropertyName, g_DoItState, 1);
         derived->AddAllowedValue(g_RB_TriggerPropertyName, g_DoneState, 2);
@@ -226,6 +229,7 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->AddAllowedValue(g_RB_AutoplayRunningPropertyName, "No");
         derived->AddAllowedValue(g_RB_AutoplayRunningPropertyName, "Yes");
         derived->UpdateProperty(g_RB_AutoplayRunningPropertyName);
