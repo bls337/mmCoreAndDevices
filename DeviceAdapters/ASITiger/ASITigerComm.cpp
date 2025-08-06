@@ -19,9 +19,6 @@
 //
 // AUTHOR:        Jon Daniels (jon@asiimaging.com) 09/2013
 //
-// BASED ON:      ASIStage.cpp, ASIFW1000.cpp, Arduino.cpp, and DemoCamera.cpp
-//
-//
 
 #include "ASITiger.h"
 #include "ASITigerComm.h"
@@ -257,11 +254,14 @@ int CTigerCommHub::DetectInstalledDevices()
              }
              break;
          case 'p':  // piezo focus like ADEPT
+             [[fallthrough]];
          case 'a':  // generic piezo axis
             name = g_PiezoDeviceName;
             break;
          case 'z':  // ZMotor like LS50, Z scope focus, etc.
+             [[fallthrough]];
          case 'l':  // generic linear motorized stage
+             [[fallthrough]];
          case 't': // rotational stage, for now treat as linear stage but may make own device adapter later (not discrete but partially a "clocked device" per firmware notation)
             name = g_ZStageDeviceName;
             break;
