@@ -406,11 +406,10 @@ private:
 
             const std::string rotated = "J " + axisLetterX + "=3 " + axisLetterY + "=2";
             const std::string standard = "J " + axisLetterX + "=2 " + axisLetterY + "=3";
-            const std::string disabled = "J " + axisLetterX + "=0 " + axisLetterY + "=0";
 
             derived->CreateStringProperty(
                 g_JoystickRotatePropertyName, "No", false,
-                new MM::ActionLambda([derived, query, response, rotated, standard, disabled](MM::PropertyBase* pProp, MM::ActionType eAct) {
+                new MM::ActionLambda([derived, query, response, rotated, standard](MM::PropertyBase* pProp, MM::ActionType eAct) {
                     double tmp = 0;
                     if (eAct == MM::BeforeGet) {
                         if (!derived->GetRefreshProps() && derived->GetInitialized()) {
@@ -430,13 +429,10 @@ private:
                         std::array<char, MM::MaxStrLength + 1> buffer;
                         RETURN_ON_MM_ERROR(derived->GetProperty(g_JoystickEnabledPropertyName, buffer.data()));
                         const std::string isJoystickEnabled(buffer.data());
-                        std::string command;
                         if (isJoystickEnabled == "Yes") {
-                            command = (isRotated == "Yes") ? rotated : standard;
-                        } else { // "No"
-                            command = disabled;
+                            RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(
+                                (isRotated == "Yes") ? rotated : standard, ":A"));
                         }
-                        RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command, ":A"));
                     }
                     return DEVICE_OK;
                 }
