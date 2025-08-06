@@ -177,9 +177,9 @@ private:
                         if (isEnabled == "Yes") {
                             std::array<char, MM::MaxStrLength + 1> buffer;
                             RETURN_ON_MM_ERROR(derived->GetProperty(g_JoystickRotatePropertyName, buffer.data()));
-                            const std::string joystickRotate(buffer.data());
-                            if (joystickRotate == "Yes") {
-                                command << "J " << derived->GetAxisLetterX() << "=3" << " " << derived->GetAxisLetterY() << "=2";  // rotated
+                            const std::string joystickRotated(buffer.data());
+                            if (joystickRotated == "Yes") {
+                                command << "J " << derived->GetAxisLetterX() << "=3" << " " << derived->GetAxisLetterY() << "=2";
                             } else {
                                 command << "J " << derived->GetAxisLetterX() << "=2" << " " << derived->GetAxisLetterY() << "=3";
                             }
@@ -350,11 +350,11 @@ private:
         T* derived = GetDerived();
 
         const std::string query = derived->GetAddressChar() + "JS X?";
+        const std::string commandPrefix = derived->GetAddressChar() + "JS";
 
         derived->CreateStringProperty(
             g_JoystickMirrorPropertyName, "No", false,
-            new MM::ActionLambda([derived, query](MM::PropertyBase* pProp, MM::ActionType eAct) {
-                std::ostringstream command;
+            new MM::ActionLambda([derived, query, commandPrefix](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 double tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
@@ -375,12 +375,13 @@ private:
                     RETURN_ON_MM_ERROR(derived->GetProperty(g_JoystickFastSpeedPropertyName, joystickFast));
                     double joystickSlow = 0.0;
                     RETURN_ON_MM_ERROR(derived->GetProperty(g_JoystickSlowSpeedPropertyName, joystickSlow));
+                    std::string command; // <addr>JS X=# Y=#
                     if (isReversed == "Yes") {
-                        command << derived->GetAddressChar() << "JS X=-" << joystickFast << " Y=-" << joystickSlow;
+                        command = commandPrefix + " X=-" + std::to_string(joystickFast) + " Y=-" + std::to_string(joystickSlow);
                     } else {
-                        command << derived->GetAddressChar() << "JS X=" << joystickFast << " Y=" << joystickSlow;
+                        command = commandPrefix + " X=" + std::to_string(joystickFast) + " Y=" + std::to_string(joystickSlow);
                     }
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command, ":A"));
                 }
                 return DEVICE_OK;
             }
@@ -524,11 +525,11 @@ private:
         T* derived = GetDerived();
 
         const std::string query = derived->GetAddressChar() + "JS F?";
+        const std::string commandPrefix = derived->GetAddressChar() + "JS";
 
         derived->CreateStringProperty(
             g_WheelMirrorPropertyName, "No", false,
-            new MM::ActionLambda([derived, query](MM::PropertyBase* pProp, MM::ActionType eAct) {
-                std::ostringstream command;
+            new MM::ActionLambda([derived, query, commandPrefix](MM::PropertyBase* pProp, MM::ActionType eAct) {
                 double tmp = 0;
                 if (eAct == MM::BeforeGet) {
                     if (!derived->GetRefreshProps() && derived->GetInitialized()) {
@@ -549,12 +550,13 @@ private:
                     RETURN_ON_MM_ERROR(derived->GetProperty(g_WheelFastSpeedPropertyName, wheelFast));
                     double wheelSlow = 0.0;
                     RETURN_ON_MM_ERROR(derived->GetProperty(g_WheelSlowSpeedPropertyName, wheelSlow));
+                    std::string command; // <addr>JS F=# T=#
                     if (isReversed == "Yes") {
-                        command << derived->GetAddressChar() << "JS F=-" << wheelFast << " T=-" << wheelSlow;
+                        command = commandPrefix + " F=-" + std::to_string(wheelFast) + " T=-" + std::to_string(wheelSlow);
                     } else {
-                        command << derived->GetAddressChar() << "JS F=" << wheelFast << " T=" << wheelSlow;
+                        command = commandPrefix + " F=" + std::to_string(wheelFast) + " T=" + std::to_string(wheelSlow);
                     }
-                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command.str(), ":A"));
+                    RETURN_ON_MM_ERROR(derived->GetHub()->QueryCommandVerify(command, ":A"));
                 }
                 return DEVICE_OK;
             }
