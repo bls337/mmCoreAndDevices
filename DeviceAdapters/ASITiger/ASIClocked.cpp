@@ -110,6 +110,9 @@ int CClocked::Initialize()
    AddAllowedValue(g_SaveSettingsPropertyName, g_SaveSettingsOrig);
    AddAllowedValue(g_SaveSettingsPropertyName, g_SaveSettingsDone);
 
+   // Mixins
+   MixinCreateInputProperties();
+
    // let calling class decide if initialized_ should be set
    return DEVICE_OK;
 }

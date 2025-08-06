@@ -40,6 +40,7 @@ public:
 
    // State device API
    unsigned long GetNumberOfPositions() const { return numPositions_; }
+   const std::string& GetAxisLetter() const { return axisLetter_; }
 
    // action interface
    int OnState                (MM::PropertyBase* pProp, MM::ActionType eAct);
