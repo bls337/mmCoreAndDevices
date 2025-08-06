@@ -19,18 +19,17 @@
 //
 // AUTHOR:        Jon Daniels (jon@asiimaging.com) 09/2013
 //
-// BASED ON:      ASIStage.h and others
-//
 
 #ifndef ASICLOCKED_H
 #define ASICLOCKED_H
 
 #include "ASIPeripheralBase.h"
+#include "MixinInput.h"
 #include "MMDevice.h"
 #include "DeviceBase.h"
 
-class CClocked : public ASIPeripheralBase<CStateDeviceBase, CClocked>
-{
+class CClocked : public ASIPeripheralBase<CStateDeviceBase, CClocked>,
+    MixinInput<CClocked> {
 public:
    CClocked(const char* name);
    ~CClocked() { }
@@ -47,7 +46,6 @@ public:
    int OnLabel                (MM::PropertyBase* pProp, MM::ActionType eAct);
    int OnSaveCardSettings     (MM::PropertyBase* pProp, MM::ActionType eAct);
    int OnRefreshProperties    (MM::PropertyBase* pProp, MM::ActionType eAct);
-   int OnJoystickSelect       (MM::PropertyBase* pProp, MM::ActionType eAct);
 
 private:
    unsigned int numPositions_;
@@ -59,24 +57,21 @@ protected:
    std::string axisLetter_;
 };
 
-class CFSlider : public CClocked
-{
+class CFSlider : public CClocked {
 public:
    CFSlider(const char* name);
 
    int Initialize();
 };
 
-class CTurret : public CClocked
-{
+class CTurret : public CClocked {
 public:
    CTurret(const char* name);
 
    int Initialize();
 };
 
-class CPortSwitch : public CClocked
-{
+class CPortSwitch : public CClocked {
 public:
    CPortSwitch(const char* name);
 

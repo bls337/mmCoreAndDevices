@@ -110,16 +110,6 @@ int CClocked::Initialize()
    AddAllowedValue(g_SaveSettingsPropertyName, g_SaveSettingsOrig);
    AddAllowedValue(g_SaveSettingsPropertyName, g_SaveSettingsDone);
 
-   // joystick disable and select which knob
-   pAct = new CPropertyAction (this, &CClocked::OnJoystickSelect);
-   CreateProperty(g_JoystickSelectPropertyName, g_JSCode_0, MM::String, false, pAct);
-   AddAllowedValue(g_JoystickSelectPropertyName, g_JSCode_0);
-   AddAllowedValue(g_JoystickSelectPropertyName, g_JSCode_2);
-   AddAllowedValue(g_JoystickSelectPropertyName, g_JSCode_3);
-   AddAllowedValue(g_JoystickSelectPropertyName, g_JSCode_22);
-   AddAllowedValue(g_JoystickSelectPropertyName, g_JSCode_23);
-   UpdateProperty(g_JoystickSelectPropertyName);
-
    // let calling class decide if initialized_ should be set
    return DEVICE_OK;
 }
@@ -245,56 +235,6 @@ int CClocked::OnSaveCardSettings(MM::PropertyBase* pProp, MM::ActionType eAct)
    return DEVICE_OK;
 }
 
-int CClocked::OnJoystickSelect(MM::PropertyBase* pProp, MM::ActionType eAct)
-{
-   std::ostringstream command;
-   std::ostringstream response;
-   long tmp = 0;
-   if (eAct == MM::BeforeGet)
-   {
-      if (!refreshProps_ && initialized_)
-         return DEVICE_OK;
-      command << "J " << axisLetter_ << "?";
-      response << ":A " << axisLetter_ << "=";
-      RETURN_ON_MM_ERROR( hub_->QueryCommandVerify(command.str(), response.str()));
-      RETURN_ON_MM_ERROR ( hub_->ParseAnswerAfterEquals(tmp) );
-      bool success = 0;
-      switch (tmp)
-      {
-         case 0: success = pProp->Set(g_JSCode_0); break;
-         case 1: success = pProp->Set(g_JSCode_1); break;
-         case 2: success = pProp->Set(g_JSCode_2); break;
-         case 3: success = pProp->Set(g_JSCode_3); break;
-         case 22: success = pProp->Set(g_JSCode_22); break;
-         case 23: success = pProp->Set(g_JSCode_23); break;
-         default: success=0;
-      }
-      // don't complain if value is unsupported, just leave as-is
-   }
-   else if (eAct == MM::AfterSet)
-   {
-      std::string tmpstr;
-      pProp->Get(tmpstr);
-      if (tmpstr == g_JSCode_0)
-         tmp = 0;
-      else if (tmpstr == g_JSCode_1)
-         tmp = 1;
-      else if (tmpstr == g_JSCode_2)
-         tmp = 2;
-      else if (tmpstr == g_JSCode_3)
-         tmp = 3;
-      else if (tmpstr == g_JSCode_22)
-         tmp = 22;
-      else if (tmpstr == g_JSCode_23)
-         tmp = 23;
-      else
-         return DEVICE_INVALID_PROPERTY_VALUE;
-      command << "J " << axisLetter_ << "=" << tmp;
-      RETURN_ON_MM_ERROR ( hub_->QueryCommandVerify(command.str(), ":A") );
-   }
-   return DEVICE_OK;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // CFSlider
 // mostly just inherits from CClocked, except description
@@ -312,7 +252,6 @@ int CFSlider::Initialize()
    std::ostringstream command;
 
    // create MM description; this doesn't work during hardware configuration wizard but will work afterwards
-   command.str("");
    command << g_FSliderDeviceDescription << " Axis=" << axisLetter_ << " HexAddr=" << addressString_;
    CreateProperty(MM::g_Keyword_Description, command.str().c_str(), MM::String, true);
 
@@ -337,7 +276,6 @@ int CPortSwitch::Initialize()
    std::ostringstream command;
 
    // create MM description; this doesn't work during hardware configuration wizard but will work afterwards
-   command.str("");
    command << g_PortSwitchDeviceDescription << " Axis=" << axisLetter_ << " HexAddr=" << addressString_;
    CreateProperty(MM::g_Keyword_Description, command.str().c_str(), MM::String, true);
 
@@ -362,7 +300,6 @@ int CTurret::Initialize()
    std::ostringstream command;
 
    // create MM description; this doesn't work during hardware configuration wizard but will work afterwards
-   command.str("");
    command << g_TurretDeviceDescription << " Axis=" << axisLetter_ << " HexAddr=" << addressString_;
    CreateProperty(MM::g_Keyword_Description, command.str().c_str(), MM::String, true);
 
