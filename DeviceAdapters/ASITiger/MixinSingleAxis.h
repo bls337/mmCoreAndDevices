@@ -88,6 +88,7 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->UpdateProperty(propertyName.c_str());
     }
 
@@ -121,6 +122,7 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->UpdateProperty(propertyName.c_str());
     }
 
@@ -152,6 +154,7 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->UpdateProperty(propertyName.c_str());
     }
 
@@ -220,6 +223,7 @@ private:
                 return DEVICE_OK;
             }
          ));
+
         derived->AddAllowedValue(propertyName.c_str(), g_SAMode_0);
         derived->AddAllowedValue(propertyName.c_str(), g_SAMode_1);
         derived->AddAllowedValue(propertyName.c_str(), g_SAMode_2);
@@ -327,6 +331,7 @@ private:
                 return DEVICE_OK;
             }
         ));
+
         derived->AddAllowedValue(propertyName.c_str(), "No");
         derived->AddAllowedValue(propertyName.c_str(), "Yes");
         derived->UpdateProperty(propertyName.c_str());
