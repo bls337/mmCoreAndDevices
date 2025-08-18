@@ -1940,7 +1940,7 @@ int Universal::buildSpdTable()
 
 
    for (int portIndex = 0; portIndex < nPortMax; portIndex++){
-      const pichar* adc_string;
+      const pichar* adc_string = nullptr;
 
 
       if (port_capable){
@@ -2553,28 +2553,14 @@ int Universal::PushImage(const unsigned char* pixBuffer, Metadata* pMd )
 {
    START_METHOD("Universal::PushImage");
 
-   int nRet = DEVICE_ERR;
    MM::Core* pCore = GetCoreCallback();
    // This method inserts a new image into the circular buffer (residing in MMCore)
-   nRet = pCore->InsertImage(this,
+   return pCore->InsertImage(this,
          pixBuffer,
          GetImageWidth(),
          GetImageHeight(),
          GetImageBytesPerPixel(),
          pMd->Serialize().c_str());
-   if (!stopOnOverflow_ && nRet == DEVICE_BUFFER_OVERFLOW)
-   {
-      // do not stop on overflow - just reset the buffer
-      pCore->ClearImageBuffer(this);
-      nRet = pCore->InsertImage(this,
-            pixBuffer,
-            GetImageWidth(),
-            GetImageHeight(),
-            GetImageBytesPerPixel(),
-            pMd->Serialize().c_str());
-   }
-
-   return nRet;
 }
 
 
