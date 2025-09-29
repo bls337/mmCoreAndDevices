@@ -409,8 +409,7 @@ namespace MM {
        */
       virtual unsigned GetBitDepth() const = 0;
       /**
-       * Returns binnings factor.  Used to calculate current pixelsize
-       * Not appropriately named.  Implemented in DeviceBase.h
+       * Unused and slated for removal. Implemented in DeviceBase.h.
        */
       virtual double GetPixelSizeUm() const = 0;
       /**
@@ -1604,6 +1603,12 @@ namespace MM {
        */
       virtual int InsertImage(const Device* caller, const unsigned char* buf, unsigned width, unsigned height, unsigned byteDepth, const char* serializedMetadata = nullptr, const bool doProcess = true) = 0;
 
+      /**
+       * Prepare the sequence buffer for the given image size and pixel format.
+       *
+       * Cameras normally do not need to call this explicitly.
+       * 'channels' is ignored (should be 1) and 'slices' must be 1.
+       */
       virtual bool InitializeImageBuffer(unsigned channels, unsigned slices, unsigned int w, unsigned int h, unsigned int pixDepth) = 0;
 
       // These functions violate the separation between device adapters and

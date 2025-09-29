@@ -104,7 +104,7 @@
  * (Keep the 3 numbers on one line to make it easier to look at diffs when
  * merging/rebasing.)
  */
-const int MMCore_versionMajor = 11, MMCore_versionMinor = 10, MMCore_versionPatch = 0;
+const int MMCore_versionMajor = 11, MMCore_versionMinor = 11, MMCore_versionPatch = 0;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2858,7 +2858,7 @@ void CMMCore::startSequenceAcquisition(long numImages, double intervalMs, bool s
 
 		try
 		{
-			if (!cbuf_->Initialize(camera->GetNumberOfChannels(), camera->GetImageWidth(), camera->GetImageHeight(), camera->GetImageBytesPerPixel()))
+			if (!cbuf_->Initialize(camera->GetImageWidth(), camera->GetImageHeight(), camera->GetImageBytesPerPixel()))
 			{
 				logError(getDeviceName(camera).c_str(), getCoreErrorText(MMERR_CircularBufferFailedToInitialize).c_str());
 				throw CMMError(getCoreErrorText(MMERR_CircularBufferFailedToInitialize).c_str(), MMERR_CircularBufferFailedToInitialize);
@@ -2904,7 +2904,7 @@ void CMMCore::startSequenceAcquisition(const char* label, long numImages, double
       throw CMMError(getCoreErrorText(MMERR_NotAllowedDuringSequenceAcquisition).c_str(),
                      MMERR_NotAllowedDuringSequenceAcquisition);
 
-   if (!cbuf_->Initialize(pCam->GetNumberOfChannels(), pCam->GetImageWidth(), pCam->GetImageHeight(), pCam->GetImageBytesPerPixel()))
+   if (!cbuf_->Initialize(pCam->GetImageWidth(), pCam->GetImageHeight(), pCam->GetImageBytesPerPixel()))
    {
       logError(getDeviceName(pCam).c_str(), getCoreErrorText(MMERR_CircularBufferFailedToInitialize).c_str());
       throw CMMError(getCoreErrorText(MMERR_CircularBufferFailedToInitialize).c_str(), MMERR_CircularBufferFailedToInitialize);
@@ -2956,7 +2956,7 @@ void CMMCore::initializeCircularBuffer() MMCORE_LEGACY_THROW(CMMError)
    if (camera)
    {
       mm::DeviceModuleLockGuard guard(camera);
-      if (!cbuf_->Initialize(camera->GetNumberOfChannels(), camera->GetImageWidth(), camera->GetImageHeight(), camera->GetImageBytesPerPixel()))
+      if (!cbuf_->Initialize(camera->GetImageWidth(), camera->GetImageHeight(), camera->GetImageBytesPerPixel()))
       {
          logError(getDeviceName(camera).c_str(), getCoreErrorText(MMERR_CircularBufferFailedToInitialize).c_str());
          throw CMMError(getCoreErrorText(MMERR_CircularBufferFailedToInitialize).c_str(), MMERR_CircularBufferFailedToInitialize);
@@ -3009,7 +3009,7 @@ void CMMCore::startContinuousSequenceAcquisition(double intervalMs) MMCORE_LEGAC
             ,MMERR_NotAllowedDuringSequenceAcquisition);
       }
 
-      if (!cbuf_->Initialize(camera->GetNumberOfChannels(), camera->GetImageWidth(), camera->GetImageHeight(), camera->GetImageBytesPerPixel()))
+      if (!cbuf_->Initialize(camera->GetImageWidth(), camera->GetImageHeight(), camera->GetImageBytesPerPixel()))
       {
          logError(getDeviceName(camera).c_str(), getCoreErrorText(MMERR_CircularBufferFailedToInitialize).c_str());
          throw CMMError(getCoreErrorText(MMERR_CircularBufferFailedToInitialize).c_str(), MMERR_CircularBufferFailedToInitialize);
@@ -3110,7 +3110,9 @@ void* CMMCore::getLastImage() MMCORE_LEGACY_THROW(CMMError)
 
 void* CMMCore::getLastImageMD(unsigned channel, unsigned slice, Metadata& md) const MMCORE_LEGACY_THROW(CMMError)
 {
-   // Slices have never been implemented on the device interface side
+   if (channel != 0)
+      throw CMMError("Channel must be 0");
+
    if (slice != 0)
       throw CMMError("Slice must be 0");
 
@@ -3188,12 +3190,15 @@ void* CMMCore::popNextImage() MMCORE_LEGACY_THROW(CMMError)
 
 /**
  * Gets and removes the next image (and metadata) from the circular buffer
- * channel indicates which cameraChannel image should be retrieved.
- * slice has not been implement and should always be 0
+ *
+ * channel has not been implemented and shoudl always be 0.
+ * slice has not been implement and should always be 0.
  */
 void* CMMCore::popNextImageMD(unsigned channel, unsigned slice, Metadata& md) MMCORE_LEGACY_THROW(CMMError)
 {
-   // Slices have never been implemented on the device interface side
+   if (channel != 0)
+      throw CMMError("Channel must be 0");
+
    if (slice != 0)
       throw CMMError("Slice must be 0");
 
@@ -3257,7 +3262,7 @@ void CMMCore::setCircularBufferMemoryFootprint(unsigned sizeMB ///< n megabytes
       if (camera)
 		{
          mm::DeviceModuleLockGuard guard(camera);
-         if (!cbuf_->Initialize(camera->GetNumberOfChannels(), camera->GetImageWidth(), camera->GetImageHeight(), camera->GetImageBytesPerPixel()))
+         if (!cbuf_->Initialize(camera->GetImageWidth(), camera->GetImageHeight(), camera->GetImageBytesPerPixel()))
 				throw CMMError(getCoreErrorText(MMERR_CircularBufferFailedToInitialize).c_str(), MMERR_CircularBufferFailedToInitialize);
 		}
 
@@ -5580,27 +5585,29 @@ std::string CMMCore::getCurrentPixelSizeConfig(bool cached) MMCORE_LEGACY_THROW(
       for (size_t j=0; j < cfgData->size(); j++)
       {
          PropertySetting cs = cfgData->getSetting(j); // config setting
-         if (!curState.isPropertyIncluded(cs.getDeviceLabel().c_str(), cs.getPropertyName().c_str()))
+         const auto deviceLabel = cs.getDeviceLabel();
+         const auto propName = cs.getPropertyName();
+         if (!curState.isPropertyIncluded(deviceLabel.c_str(), propName.c_str()))
          {
             try
             {
-				std::string value;
-				if (!cached)
-				{
-                   value = getProperty(cs.getDeviceLabel().c_str(), cs.getPropertyName().c_str());
-				}
-				else
-				{
-               MMThreadGuard scg(stateCacheLock_);
-               value = stateCache_.getSetting(cs.getDeviceLabel().c_str(), cs.getPropertyName().c_str()).getPropertyValue();
-				}
-               PropertySetting ss(cs.getDeviceLabel().c_str(), cs.getPropertyName().c_str(), value.c_str()); // state setting
+               std::string value;
+               if (!cached)
+               {
+                  value = getProperty(deviceLabel.c_str(), propName.c_str());
+               }
+               else
+               {
+                  MMThreadGuard scg(stateCacheLock_);
+                  value = stateCache_.getSetting(deviceLabel.c_str(), propName.c_str()).getPropertyValue();
+               }
+               PropertySetting ss(deviceLabel.c_str(), propName.c_str(), value.c_str()); // state setting
                curState.addSetting(ss);
             }
             catch (CMMError& err)
             {
                // just log error
-               logError("GetPixelSizeUm", err.getMsg().c_str());
+               logError(deviceLabel.c_str(), err.getMsg().c_str());
             }
          }
       }
@@ -5764,7 +5771,7 @@ std::vector<double> CMMCore::getPixelSizeAffineByID(const char* resolutionID) MM
 
 /**
  * Returns the product of all Magnifiers in the system or 1.0 when none is found
- * This is used internally by GetPixelSizeUm
+ * This is used internally by getPixelSizeUm
  *
  * @return products of all magnifier devices in the system or 1.0 when none is found
  */

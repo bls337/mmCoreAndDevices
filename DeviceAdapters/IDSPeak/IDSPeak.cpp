@@ -42,7 +42,6 @@
 #include <ids_peak_comfort_c/ids_peak_comfort_c.h>
 
 using namespace std;
-const double CIDSPeak::nominalPixelSizeUm_ = 1.0;
 double g_IntensityFactor_ = 1.0;
 const char* g_PixelType_8bit = "8bit";
 const char* g_PixelType_16bit = "16bit";
@@ -363,7 +362,6 @@ bool IDSPeakHub::Busy()
 * perform most of the initialization in the Initialize() method.
 */
 CIDSPeak::CIDSPeak(int idx) :
-    CCameraBase<CIDSPeak>(),
     initialized_(false),
     readoutUs_(0.0),
     bitDepth_(8),

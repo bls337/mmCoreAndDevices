@@ -37,7 +37,6 @@
 #pragma comment(lib, "shlwapi.lib")
 
 using namespace std;
-const double CMMTUCam::nominalPixelSizeUm_ = 1.0;
 double g_IntensityFactor_ = 1.0;
 
 // External names used used by the rest of the system
@@ -251,7 +250,6 @@ int CMMTUCam::s_nCntCam  = 0;
 * perform most of the initialization in the Initialize() method.
 */
 CMMTUCam::CMMTUCam() :
-    CCameraBase<CMMTUCam> (),
     exposureMaximum_(10000.0),     
     exposureMinimum_(0.0),
     dPhase_(0),

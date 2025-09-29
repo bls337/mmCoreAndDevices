@@ -54,7 +54,6 @@
 using namespace std;
 using namespace andor;
 
-const double CAndorSDK3Camera::nominalPixelSizeUm_ = 1.0;
 double g_IntensityFactor_ = 1.0;
 
 // External names used used by the rest of the system
@@ -137,7 +136,7 @@ MODULE_API void DeleteDevice(MM::Device * pDevice)
 * perform most of the initialization in the Initialize() method.
 */
 CAndorSDK3Camera::CAndorSDK3Camera()
-: CCameraBase<CAndorSDK3Camera> (),
+:
   deviceManager(NULL),
   cameraDevice(NULL),
   bufferControl(NULL),

@@ -91,7 +91,6 @@
 #undef DOLIVEPAIR
 
 using namespace std;
-const double CRaptorEPIX::nominalPixelSizeUm_ = 1.0;
 double g_IntensityFactor_ = 1.0;
 bool bEagle4210 = false;
 
@@ -912,7 +911,6 @@ MODULE_API void DeleteDevice(MM::Device* pDevice)
 * perform most of the initialization in the Initialize() method.
 */
 CRaptorEPIX::CRaptorEPIX(int nCameraType) :
-   CCameraBase<CRaptorEPIX> (),
    cameraType_(0),
    dPhase_(0),
    exposure_(0),

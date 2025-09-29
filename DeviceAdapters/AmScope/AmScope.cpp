@@ -105,7 +105,6 @@ MODULE_API void DeleteDevice(MM::Device* pDevice)
 * perform most of the initialization in the Initialize() method.
 */
 AmScope::AmScope() :
-	CCameraBase<AmScope> (),
 	dPhase_(0),
 	binning_(1),
 	autoExposure_(1),
@@ -342,8 +341,7 @@ int AmScope::Initialize()
 
    // Physical pixel size (um)
    Toupcam_get_PixelSize(m_Htoupcam, 0, &orgPixelSizeXUm_, &orgPixelSizeYUm_);
-   nominalPixelSizeUm_ = orgPixelSizeXUm_;
-   pixelSizeXUm_ = (float)nominalPixelSizeUm_;
+   pixelSizeXUm_ = orgPixelSizeXUm_;
    pixelSizeYUm_ = orgPixelSizeYUm_;
    pAct = new CPropertyAction (this, &AmScope::OnPixelSizeXUm);
    CreateFloatProperty("PixelSizeX(um)", pixelSizeXUm_, true, pAct);

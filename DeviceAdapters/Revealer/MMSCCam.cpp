@@ -13,8 +13,6 @@
 #include "SCDefines.h"
 
 
-const double SCCamera::nominalPixelSizeUm_ = 1.0;
-
 const char* gCameraDeviceName  = "Revealer";
 const char* g_PixelType_8bit = "8bit";
 const char* g_PixelType_16bit = "16bit";
@@ -127,7 +125,6 @@ MODULE_API void DeleteDevice(MM::Device* pDevice)
 * perform most of the initialization in the Initialize() method.
 */
 SCCamera::SCCamera() :
-    CCameraBase<SCCamera> (),
     insertCount_(0),
     initialized_(false),
     devHandle_(nullptr),
@@ -724,14 +721,6 @@ bool SCCamera::IsCapturing(){
     msg << "IsCapturing" << ":" << !thd_->IsStopped();
     LogMessage(msg.str().c_str());
     return !thd_->IsStopped(); 
-}
-
-double SCCamera::GetNominalPixelSizeUm() const{
-    return nominalPixelSizeUm_;
-}
-
-double SCCamera::GetPixelSizeUm() const { 
-    return nominalPixelSizeUm_ * GetBinning();
 }
 
 int SCCamera::GetBinning() const {

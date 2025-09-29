@@ -80,9 +80,6 @@ there is too much uncommented magic in this code.
 
 using namespace std;
 
-
-const double CBaumerOptronic::nominalPixelSizeUm_ = 1.0;
-
 // External names used by the rest of the system
 const char* g_CameraDeviceName = "BaumerOptronic";
 
@@ -1544,7 +1541,6 @@ unsigned int __stdcall mSeqEventHandler(void* pArguments)
  * perform most of the initialization in the Initialize() method.
  */
 CBaumerOptronic::CBaumerOptronic() :
-   CCameraBase<CBaumerOptronic>(),
    initialized_(false),
    pWorkerThread_(NULL),
    stopOnOverflow_(false)

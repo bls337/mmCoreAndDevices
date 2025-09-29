@@ -38,7 +38,6 @@
 
 
 using namespace std;
-const double CMightex_BUF_USBCCDCamera::nominalPixelSizeUm_ = 1.0;
 double g_IntensityFactor_ = 1.0;
 int OnExposureCnt = 0;
 //CMightex_BUF_USBCCDCamera *gMyCamera;
@@ -610,7 +609,6 @@ int CMightex_BUF_USBCCDCamera::GetCameraBufferCount(int width, int height)
 * perform most of the initialization in the Initialize() method.
 */
 CMightex_BUF_USBCCDCamera::CMightex_BUF_USBCCDCamera() :
-   CCameraBase<CMightex_BUF_USBCCDCamera> (),
    dPhase_(0),
    initialized_(false),
    readoutUs_(0.0),
