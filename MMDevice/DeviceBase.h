@@ -97,11 +97,6 @@ public:
    typedef MM::ActionEx<U> CPropertyActionEx;
 
    /**
-   * Returns the library handle (for use only by the calling code).
-   */
-   virtual HDEVMODULE GetModuleHandle() const {return module_;}
-
-   /**
    * Assigns a name for the module (for use only by the calling code).
    */
    virtual void SetModuleName(const char* name)
@@ -132,11 +127,6 @@ public:
    {
       CDeviceUtils::CopyLimitedString(name, description_.c_str());
    }
-
-   /**
-   * Sets the library handle (for use only by the calling code).
-   */
-   virtual void SetModuleHandle(HDEVMODULE hModule) {module_ = hModule;}
 
    /**
    * Sets the device label (for use only by the calling code).
@@ -809,7 +799,7 @@ public:
 
 protected:
 
-   CDeviceBase() : module_(0), delayMs_(0), usesDelay_(false), callback_(0)
+   CDeviceBase() : delayMs_(0), usesDelay_(false), callback_(0)
    {
       InitializeDefaultErrorMessages();
    }
@@ -1250,7 +1240,6 @@ private:
 
 
    MM::PropertyCollection properties_;
-   HDEVMODULE module_;
    std::string label_;
    std::string moduleName_;
    std::string description_;
@@ -1279,6 +1268,7 @@ class CGenericBase : public CDeviceBase<MM::Generic, U>
 {
 };
 
+
 /**
 * Base class for creating camera device adapters.
 * This class has a functional constructor - must be invoked
@@ -1288,77 +1278,57 @@ template <class U>
 class CCameraBase : public CDeviceBase<MM::Camera, U>
 {
 public:
-   using CDeviceBase<MM::Camera, U>::CreateProperty;
-   using CDeviceBase<MM::Camera, U>::SetAllowedValues;
-   using CDeviceBase<MM::Camera, U>::GetBinning;
+   // These 2 'using' declarations were originally introduced in order to allow
+   // C[Legacy]CameraBase member functions to call these functions (which would
+   // have also been possible with 'this->'). The 2 functions are protected in
+   // CDeviceBase. However, they are made public here, and some concrete
+   // cameras ended up depending on that. So they need to be kept for now,
+   // until and unless such cameras are fixed.
    using CDeviceBase<MM::Camera, U>::GetCoreCallback;
-   using CDeviceBase<MM::Camera, U>::SetProperty;
    using CDeviceBase<MM::Camera, U>::LogMessage;
-   virtual const unsigned char* GetImageBuffer() = 0;
-   virtual unsigned GetImageWidth() const = 0;
-   virtual unsigned GetImageHeight() const = 0;
-   virtual unsigned GetImageBytesPerPixel() const = 0;
-   virtual int SnapImage() = 0;
 
-   CCameraBase() : busy_(false), stopWhenCBOverflows_(false), thd_(0)
+   CCameraBase()
    {
       // create and initialize common transpose properties
       std::vector<std::string> allowedValues;
       allowedValues.push_back("0");
       allowedValues.push_back("1");
-      CreateProperty(MM::g_Keyword_Transpose_SwapXY, "0", MM::Integer, false);
-      SetAllowedValues(MM::g_Keyword_Transpose_SwapXY, allowedValues);
-      CreateProperty(MM::g_Keyword_Transpose_MirrorX, "0", MM::Integer, false);
-      SetAllowedValues(MM::g_Keyword_Transpose_MirrorX, allowedValues);
-      CreateProperty(MM::g_Keyword_Transpose_MirrorY, "0", MM::Integer, false);
-      SetAllowedValues(MM::g_Keyword_Transpose_MirrorY, allowedValues);
-      CreateProperty(MM::g_Keyword_Transpose_Correction, "0", MM::Integer, false);
-      SetAllowedValues(MM::g_Keyword_Transpose_Correction, allowedValues);
+      this->CreateProperty(MM::g_Keyword_Transpose_SwapXY, "0", MM::Integer, false);
+      this->SetAllowedValues(MM::g_Keyword_Transpose_SwapXY, allowedValues);
+      this->CreateProperty(MM::g_Keyword_Transpose_MirrorX, "0", MM::Integer, false);
+      this->SetAllowedValues(MM::g_Keyword_Transpose_MirrorX, allowedValues);
+      this->CreateProperty(MM::g_Keyword_Transpose_MirrorY, "0", MM::Integer, false);
+      this->SetAllowedValues(MM::g_Keyword_Transpose_MirrorY, allowedValues);
+      this->CreateProperty(MM::g_Keyword_Transpose_Correction, "0", MM::Integer, false);
+      this->SetAllowedValues(MM::g_Keyword_Transpose_Correction, allowedValues);
 
-      thd_ = new BaseSequenceThread(this);
    }
 
-   virtual ~CCameraBase()
-   {
-      if (!thd_->IsStopped()) {
-         thd_->Stop();
-         thd_->wait();
-      }
-      delete thd_;
-   }
-
-   virtual bool Busy() {return busy_;}
+   virtual const unsigned char* GetImageBuffer() = 0;
+   virtual unsigned GetImageWidth() const = 0;
+   virtual unsigned GetImageHeight() const = 0;
+   virtual unsigned GetImageBytesPerPixel() const = 0;
+   virtual int SnapImage() = 0;
+   virtual bool Busy() = 0;
 
    /**
    * Continuous sequence acquisition.
    * Default to sequence acquisition with a high number of images
    */
-   virtual int StartSequenceAcquisition(double interval)
-   {
-      return StartSequenceAcquisition(LONG_MAX, interval, false);
-   }
+   virtual int StartSequenceAcquisition(double interval) = 0;
 
    /**
    * Stop and wait for the thread finished
    */
-   virtual int StopSequenceAcquisition()
-   {
-      if (!thd_->IsStopped()) {
-         thd_->Stop();
-         thd_->wait();
-      }
+   virtual int StopSequenceAcquisition() = 0;
 
-      return DEVICE_OK;
-   }
-
-   /**
-   * Default implementation of the pixel size scaling.
-   */
-   virtual double GetPixelSizeUm() const {return GetBinning();}
+   // It appears that this function was never used by MMCore and is slated for
+   // removal. Concrete cameras should not override.
+   double GetPixelSizeUm() const final { return 0.0; }
 
    virtual unsigned GetNumberOfComponents() const
    {
-      return 1;
+      return 1; // Default to monochrome (ie not RGB)
    }
 
    virtual int GetComponentName(unsigned channel, char* name)
@@ -1414,24 +1384,13 @@ public:
       data.copy(serializedMetadata, data.size(), 0);
    }
 
-   // temporary debug methods
    virtual int PrepareSequenceAcqusition() {return DEVICE_OK;}
 
    /**
    * Default implementation.
    */
-   virtual int StartSequenceAcquisition(long numImages, double interval_ms, bool stopOnOverflow)
-   {
-      if (IsCapturing())
-         return DEVICE_CAMERA_BUSY_ACQUIRING;
-
-      int ret = GetCoreCallback()->PrepareForAcq(this);
-      if (ret != DEVICE_OK)
-         return ret;
-      thd_->Start(numImages,interval_ms);
-      stopWhenCBOverflows_ = stopOnOverflow;
-      return DEVICE_OK;
-   }
+   virtual int StartSequenceAcquisition(long numImages, double interval_ms, 
+                              bool stopOnOverflow) = 0;
 
    virtual int GetExposureSequenceMaxLength(long& /*nrEvents*/) const
    {
@@ -1463,13 +1422,12 @@ public:
       return DEVICE_UNSUPPORTED_COMMAND;
    }
 
-   virtual bool IsCapturing(){return !thd_->IsStopped();}
+   virtual bool IsCapturing() = 0;
 
    virtual void AddTag(const char* key, const char* deviceLabel, const char* value)
    {
       metadata_.PutTag(key, deviceLabel, value);
    }
-
 
    virtual void RemoveTag(const char* key)
    {
@@ -1519,12 +1477,94 @@ protected:
       return metadata_.GetSingleTag(key).GetValue();
    }
 
+private:
+
+   Metadata metadata_;
+
+};
+
+
+
+
+/**
+ * Legacy base class for creating camera device adapters.
+ * Newer camera device adapters should inherit from CCameraBase.
+ * This class contains suboptimal methods for implementing sequence acquisition
+ * using a series of snaps.
+ */
+template <class U>
+class CLegacyCameraBase : public CCameraBase<U>
+{
+public:
+   CLegacyCameraBase() : busy_(false), stopWhenCBOverflows_(false), thd_(0)
+   {
+      thd_ = new BaseSequenceThread(this);
+   }
+
+   virtual ~CLegacyCameraBase()
+   {
+      if (!thd_->IsStopped()) {
+         thd_->Stop();
+         thd_->wait();
+      }
+      delete thd_;
+   }
+
+
+   virtual bool Busy() {return busy_;}
+
+   /**
+   * Continuous sequence acquisition.
+   * Default to sequence acquisition with a high number of images
+   */
+   virtual int StartSequenceAcquisition(double interval)
+   {
+      return StartSequenceAcquisition(LONG_MAX, interval, false);
+   }
+
+   /**
+   * Stop and wait for the thread finished
+   */
+   virtual int StopSequenceAcquisition()
+   {
+      if (!thd_->IsStopped()) {
+         thd_->Stop();
+         thd_->wait();
+      }
+
+      return DEVICE_OK;
+   }
+
+   // Implementation of a sequence acquisition as a series of snaps
+   // This was a temporary method used for debugging, which is why its now
+   // implemented in this legacy class. It's preferable that camera devices
+   // inherit directly from CCameraBase and not use these default implementations.   
+   virtual int StartSequenceAcquisition(long numImages, double interval_ms, bool stopOnOverflow)
+   {
+      if (IsCapturing())
+         return DEVICE_CAMERA_BUSY_ACQUIRING;
+
+      int ret = this->GetCoreCallback()->PrepareForAcq(this);
+      if (ret != DEVICE_OK)
+         return ret;
+      thd_->Start(numImages,interval_ms);
+      stopWhenCBOverflows_ = stopOnOverflow;
+      return DEVICE_OK;
+   }
+
+   virtual bool IsCapturing(){return !thd_->IsStopped();}
+
+
+protected:
+   // Member functions that can be overridden by derived classes (these
+   // customize the legacy snap-based sequence acquisition).
+
    // Do actual capturing
    // Called from inside the thread
    virtual int ThreadRun (void)
    {
       int ret=DEVICE_ERR;
-      ret = SnapImage();
+      ret = this->SnapImage();
       if (ret != DEVICE_OK)
       {
          return ret;
@@ -1543,18 +1583,9 @@ protected:
       this->GetLabel(label);
       Metadata md;
       md.put(MM::g_Keyword_Metadata_CameraLabel, label);
-      int ret = GetCoreCallback()->InsertImage(this, GetImageBuffer(), GetImageWidth(),
-         GetImageHeight(), GetImageBytesPerPixel(),
+      return this->GetCoreCallback()->InsertImage(this, this->GetImageBuffer(), this->GetImageWidth(),
+         this->GetImageHeight(), this->GetImageBytesPerPixel(),
          md.Serialize().c_str());
-      if (!stopWhenCBOverflows_ && ret == DEVICE_BUFFER_OVERFLOW)
-      {
-         // do not stop on overflow - just reset the buffer
-         GetCoreCallback()->ClearImageBuffer(this);
-         return GetCoreCallback()->InsertImage(this, GetImageBuffer(), GetImageWidth(),
-            GetImageHeight(), GetImageBytesPerPixel(),
-            md.Serialize().c_str());
-      } else
-         return ret;
    }
 
    virtual double GetIntervalMs() {return thd_->GetIntervalMs();}
@@ -1566,12 +1597,14 @@ protected:
    {
       try
       {
-         LogMessage(g_Msg_SEQUENCE_ACQUISITION_THREAD_EXITING);
-         GetCoreCallback()?GetCoreCallback()->AcqFinished(this,0):DEVICE_OK;
+         this->LogMessage(g_Msg_SEQUENCE_ACQUISITION_THREAD_EXITING);
+         if (this->GetCoreCallback() != nullptr) {
+            this->GetCoreCallback()->AcqFinished(this, 0);
+         }
       }
       catch(...)
       {
-         LogMessage(g_Msg_EXCEPTION_IN_ON_THREAD_EXITING, false);
+         this->LogMessage(g_Msg_EXCEPTION_IN_ON_THREAD_EXITING, false);
       }
    }
 
@@ -1583,10 +1616,10 @@ protected:
    class CaptureRestartHelper
    {
       bool restart_;
-      CCameraBase* pCam_;
+      CLegacyCameraBase* pCam_;
 
    public:
-      CaptureRestartHelper(CCameraBase* pCam)
+      CaptureRestartHelper(CLegacyCameraBase* pCam)
          :pCam_(pCam)
       {
          restart_=pCam_->IsCapturing();
@@ -1602,10 +1635,10 @@ protected:
    ////////////////////////////////////////////////////////////////////////////
    class BaseSequenceThread : public MMDeviceThreadBase
    {
-      friend class CCameraBase;
+      friend class CLegacyCameraBase;
       enum { default_numImages=1, default_intervalMS = 100 };
    public:
-      BaseSequenceThread(CCameraBase* pCam)
+      BaseSequenceThread(CLegacyCameraBase* pCam)
          :intervalMs_(default_intervalMS)
          ,numImages_(default_numImages)
          ,imageCounter_(0)
@@ -1662,7 +1695,7 @@ protected:
       MM::MMTime GetStartTime(){return startTime_;}
       MM::MMTime GetActualDuration(){return actualDuration_;}
 
-      CCameraBase* GetCamera() {return camera_;}
+      CLegacyCameraBase* GetCamera() {return camera_;}
       long GetNumberOfImages() {return numImages_;}
 
       void UpdateActualDuration() {actualDuration_ = camera_->GetCurrentMMTime() - startTime_;}
@@ -1694,7 +1727,7 @@ protected:
       long imageCounter_;
       bool stop_;
       bool suspend_;
-      CCameraBase* camera_;
+      CLegacyCameraBase* camera_;
       MM::MMTime startTime_;
       MM::MMTime actualDuration_;
       MM::MMTime lastFrameTime_;
@@ -1708,7 +1741,6 @@ private:
 
    bool busy_;
    bool stopWhenCBOverflows_;
-   Metadata metadata_;
 
    BaseSequenceThread * thd_;
    friend class BaseSequenceThread;
@@ -2342,24 +2374,26 @@ public:
 
       // then test if the given position already has a label
       for (it=labels_.begin(); it!=labels_.end(); it++)
+      {
          if (it->second == pos)
          {
             labels_.erase(it);
             break;
          }
+      }
 
-         // finally we can add the new label-position mapping
-         labels_[label] = pos;
+      // finally we can add the new label-position mapping
+      labels_[label] = pos;
 
-         // attempt to define allowed values for label property (if it exists),
-         // and don't make any fuss if the operation fails
-         std::string strLabel(label);
-         std::vector<std::string> values;
-         for (it=labels_.begin(); it!=labels_.end(); it++)
-            values.push_back(it->first);
-         this->SetAllowedValues(MM::g_Keyword_Label, values);
+      // attempt to define allowed values for label property (if it exists),
+      // and don't make any fuss if the operation fails
+      std::string strLabel(label);
+      std::vector<std::string> values;
+      for (it=labels_.begin(); it!=labels_.end(); it++)
+         values.push_back(it->first);
+      this->SetAllowedValues(MM::g_Keyword_Label, values);
 
-         return DEVICE_OK;
+      return DEVICE_OK;
    }
 
    /**

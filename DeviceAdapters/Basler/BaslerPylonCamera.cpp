@@ -147,7 +147,6 @@ MODULE_API void DeleteDevice(MM::Device* pDevice)
 * Constructor.
 */
 BaslerCamera::BaslerCamera() :
-	CCameraBase<BaslerCamera>(),
 	maxWidth_(0),
 	maxHeight_(0),
 	exposure_us_(0),
@@ -2152,10 +2151,6 @@ void CircularBufferInserter::OnImageGrabbed(CInstantCamera& /* camera */, const 
 			int ret = dev_->GetCoreCallback()->InsertImage(dev_, (const unsigned char*)ptrGrabResult->GetBuffer(),
 				(unsigned)ptrGrabResult->GetWidth(), (unsigned)ptrGrabResult->GetHeight(),
 				(unsigned)dev_->GetImageBytesPerPixel(), 1, md.Serialize().c_str(), FALSE);
-			if (ret == DEVICE_BUFFER_OVERFLOW) {
-				//if circular buffer overflows, just clear it and keep putting stuff in so live mode can continue
-				dev_->GetCoreCallback()->ClearImageBuffer(dev_);
-			}
 		}
 		else if (IsByerFormat || ptrGrabResult->GetPixelType() == PixelType_RGB8packed)
 		{
@@ -2166,10 +2161,6 @@ void CircularBufferInserter::OnImageGrabbed(CInstantCamera& /* camera */, const 
 			int ret = dev_->GetCoreCallback()->InsertImage(dev_, (const unsigned char*)image.GetBuffer(),
 				(unsigned)dev_->GetImageWidth(), (unsigned)dev_->GetImageHeight(),
 				(unsigned)dev_->GetImageBytesPerPixel(), 1, md.Serialize().c_str(), FALSE);
-			if (ret == DEVICE_BUFFER_OVERFLOW) {
-				//if circular buffer overflows, just clear it and keep putting stuff in so live mode can continue
-				dev_->GetCoreCallback()->ClearImageBuffer(dev_);
-			}
 		}
 		else if (ptrGrabResult->GetPixelType() == PixelType_BGR8packed)
 		{
@@ -2178,11 +2169,6 @@ void CircularBufferInserter::OnImageGrabbed(CInstantCamera& /* camera */, const 
 			int ret = dev_->GetCoreCallback()->InsertImage(dev_, (const unsigned char*)dev_->Buffer4ContinuesShot,
 				(unsigned)dev_->GetImageWidth(), (unsigned)dev_->GetImageHeight(),
 				(unsigned)dev_->GetImageBytesPerPixel(), 1, md.Serialize().c_str(), FALSE);
-			if (ret == DEVICE_BUFFER_OVERFLOW)
-			{
-				//if circular buffer overflows, just clear it and keep putting stuff in so live mode can continue
-				dev_->GetCoreCallback()->ClearImageBuffer(dev_);
-			}
 		}
 	}
 	else

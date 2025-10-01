@@ -13,8 +13,6 @@
 #include "SCDefines.h"
 
 
-const double SCCamera::nominalPixelSizeUm_ = 1.0;
-
 const char* gCameraDeviceName  = "Revealer";
 const char* g_PixelType_8bit = "8bit";
 const char* g_PixelType_16bit = "16bit";
@@ -127,7 +125,6 @@ MODULE_API void DeleteDevice(MM::Device* pDevice)
 * perform most of the initialization in the Initialize() method.
 */
 SCCamera::SCCamera() :
-    CCameraBase<SCCamera> (),
     insertCount_(0),
     initialized_(false),
     devHandle_(nullptr),
@@ -668,15 +665,7 @@ int SCCamera::InsertImage()
 	const unsigned char* data = GetImageBuffer();
 
     auto coreCallback = GetCoreCallback();
-    auto rslt = GetCoreCallback()->InsertImage(this, data, width, height, bytePerPixel,1, md.Serialize().c_str());
-    if (!stopOnOverflow_ && rslt == DEVICE_BUFFER_OVERFLOW)
-    {  
-		// do not stop on overflow - just reset the buffer
-		GetCoreCallback()->ClearImageBuffer(this);
-		// don't process this same image again...
-		rslt = GetCoreCallback()->InsertImage(this, data, width, height, bytePerPixel, 1, md.Serialize().c_str(), false);
-	}
-    return rslt;
+    return GetCoreCallback()->InsertImage(this, data, width, height, bytePerPixel,1, md.Serialize().c_str());
 }
 
 int SCCamera::getNextFrame() {
@@ -732,14 +721,6 @@ bool SCCamera::IsCapturing(){
     msg << "IsCapturing" << ":" << !thd_->IsStopped();
     LogMessage(msg.str().c_str());
     return !thd_->IsStopped(); 
-}
-
-double SCCamera::GetNominalPixelSizeUm() const{
-    return nominalPixelSizeUm_;
-}
-
-double SCCamera::GetPixelSizeUm() const { 
-    return nominalPixelSizeUm_ * GetBinning();
 }
 
 int SCCamera::GetBinning() const {

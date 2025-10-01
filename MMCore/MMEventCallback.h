@@ -87,9 +87,29 @@ public:
       std::cout << "onExposureChanged()" << name << " " << newExposure << '\n';
    }
 
+   virtual void onShutterOpenChanged(const char* name, bool open)
+   {
+      std::cout << "onShutterOpenChanged()" << name << " " << open << '\n';
+   }
+
    virtual void onSLMExposureChanged(const char* name, double newExposure)
    {
       std::cout << "onSLMExposureChanged()" << name << " " << newExposure << '\n';
+   }
+
+   virtual void onImageSnapped(const char* cameraLabel)
+   {
+      std::cout << "onImageSnapped() " << cameraLabel << '\n';
+   }
+
+   virtual void onSequenceAcquisitionStarted(const char* cameraLabel)
+   {
+      std::cout << "onSequenceAcquisitionStarted() " << cameraLabel << '\n';
+   }
+
+   virtual void onSequenceAcquisitionStopped(const char* cameraLabel)
+   {
+      std::cout << "onSequenceAcquisitionStopped() " << cameraLabel << '\n';
    }
 
 };
