@@ -57,7 +57,7 @@ CScanner::CScanner(const char* name) :
    saStateX_(),
    saStateY_(),
    polygonRepetitions_(0),
-   ring_buffer_supported_(false),
+   hasRingBuffer_(false),
    laser_side_(0),   // will be set to 1 or 2 if used
    laserTTLenabled_(false),
    mmTarget_(false),
@@ -562,7 +562,7 @@ int CScanner::Initialize()
    // add ring buffer properties if supported (starting 2.81)
    if (FirmwareVersionAtLeast(2.81) && (build.vAxesProps[0] & BIT1))
    {
-      ring_buffer_supported_ = true;
+      hasRingBuffer_ = true;
 
       pAct = new CPropertyAction (this, &CScanner::OnRBMode);
       CreateProperty(g_RB_ModePropertyName, g_RB_OnePoint_1, MM::String, false, pAct);
@@ -939,7 +939,7 @@ int CScanner::DeletePolygons()
 
 int CScanner::LoadPolygons()
 {
-   if (ring_buffer_supported_)
+   if (hasRingBuffer_)
    {
       std::ostringstream command;
       command << addressChar_ << "RM X=0";
@@ -977,7 +977,7 @@ int CScanner::SetPolygonRepetitions(int repetitions)
 
 int CScanner::RunPolygons()
 {
-   if (ring_buffer_supported_)
+   if (hasRingBuffer_)
    {
       RETURN_ON_MM_ERROR ( SetProperty(g_RB_ModePropertyName, g_RB_PlayOnce_2) );
 
@@ -1032,7 +1032,7 @@ int CScanner::GetChannel(char* channelName)
 
 int CScanner::RunSequence()
 {
-   if (ring_buffer_supported_)
+   if (hasRingBuffer_)
    {
       // should consider ensuring that RM Y is set appropriately with axisIndexX_ and axisIndexY_
 

@@ -48,7 +48,7 @@ CZStage::CZStage(const char* name) :
     runningFastSequence_(false),
     speedTruth_(false),
     lastSpeed_(1.0),
-    ring_buffer_capacity_(0)
+    ringBufferSize_(0)
 {
     // only set up these properties if we have the required information in the name
     if (IsExtendedName(name)) {
@@ -330,13 +330,13 @@ int CZStage::Initialize()
       // get the number of ring buffer positions from the BU X output
       std::string rb_define = hub_->GetDefineString(build, "RING BUFFER");
 
-      ring_buffer_capacity_ = 0;
+      ringBufferSize_ = 0;
       if (rb_define.size() > 12)
       {
-         ring_buffer_capacity_ = atol(rb_define.substr(11).c_str());
+         ringBufferSize_ = atol(rb_define.substr(11).c_str());
       }
 
-      if (ring_buffer_capacity_ != 0)
+      if (ringBufferSize_ != 0)
       {
          hasRingBuffer_ = true;
 

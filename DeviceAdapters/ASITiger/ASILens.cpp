@@ -47,7 +47,7 @@ CLens::CLens(const char* name) :
    stepSizeUm_(g_StageMinStepSize),    // we'll use 1 nm as our smallest possible step size, this is somewhat arbitrary and doesn't change during the program
    axisLetter_(g_EmptyAxisLetterStr),  // value determined by extended name
    ring_buffer_supported_(false),
-   ring_buffer_capacity_(0),
+   ringBufferSize_(0),
    ttl_trigger_supported_(false),
    ttl_trigger_enabled_(false)
 {
@@ -265,13 +265,13 @@ int CLens::Initialize()
       // get the number of ring buffer positions from the BU X output
       std::string rb_define = hub_->GetDefineString(build, "RING BUFFER");
 
-      ring_buffer_capacity_ = 0;
+      ringBufferSize_ = 0;
       if (rb_define.size() > 12)
       {
-         ring_buffer_capacity_ = atol(rb_define.substr(11).c_str());
+         ringBufferSize_ = atol(rb_define.substr(11).c_str());
       }
 
-      if (ring_buffer_capacity_ != 0)
+      if (ringBufferSize_ != 0)
       {
          ring_buffer_supported_ = true;
 

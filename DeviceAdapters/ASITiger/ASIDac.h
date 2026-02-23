@@ -49,7 +49,7 @@ public:
 	// Sequence commands ie Ring Buffer needs TTL 
 	
 	int IsDASequenceable(bool& isSequenceable) const { isSequenceable = ttl_trigger_enabled_; return DEVICE_OK; }
-	int GetDASequenceMaxLength(long &nrEvents) const { nrEvents = ring_buffer_capacity_; return DEVICE_OK; }
+	int GetDASequenceMaxLength(long &nrEvents) const { nrEvents = ringBufferSize_; return DEVICE_OK; }
 	int StartDASequence();
 	int StopDASequence();
 	int ClearDASequence();
@@ -98,7 +98,7 @@ private:
 	double maxvolts_;
 	double minvolts_;
 	bool ring_buffer_supported_;
-	long ring_buffer_capacity_;
+	long ringBufferSize_;
 	bool ttl_trigger_supported_;
 	bool ttl_trigger_enabled_;
 	std::vector<double> sequence_; // carries data in volts

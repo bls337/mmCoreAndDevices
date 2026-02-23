@@ -59,7 +59,7 @@ public:
    bool IsContinuousFocusDrive() const { return false; }  // todo figure out what this means and if it's accurate
 
    int IsStageSequenceable(bool& isSequenceable) const { isSequenceable = ttl_trigger_enabled_; return DEVICE_OK; }
-   int GetStageSequenceMaxLength(long& nrEvents) const { nrEvents = ring_buffer_capacity_; return DEVICE_OK; }
+   int GetStageSequenceMaxLength(long& nrEvents) const { nrEvents = ringBufferSize_; return DEVICE_OK; }
 
    // special firmware required for sequence (TTL triggering)
    int StartStageSequence();
@@ -111,7 +111,7 @@ private:
    double stepSizeUm_;
    std::string axisLetter_;
    bool ring_buffer_supported_;
-   long ring_buffer_capacity_;
+   long ringBufferSize_;
    bool ttl_trigger_supported_;
    bool ttl_trigger_enabled_;
    std::vector<double> sequence_;

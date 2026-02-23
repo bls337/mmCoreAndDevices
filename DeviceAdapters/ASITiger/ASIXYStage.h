@@ -61,7 +61,7 @@ public:
    int Move (double vx, double vy);
 
    int IsXYStageSequenceable(bool& isSequenceable) const { isSequenceable = ttl_trigger_enabled_; return DEVICE_OK; }
-   int GetXYStageSequenceMaxLength(long& nrEvents) const { nrEvents = ring_buffer_capacity_; return DEVICE_OK; }
+   int GetXYStageSequenceMaxLength(long& nrEvents) const { nrEvents = ringBufferSize_; return DEVICE_OK; }
 
    int StartXYStageSequence();
    int StopXYStageSequence();
@@ -170,7 +170,7 @@ private:
    double lastSpeedX_;
    double lastSpeedY_;
    bool hasRingBuffer_;
-   long ring_buffer_capacity_;
+   long ringBufferSize_;
    bool ttl_trigger_supported_;
    bool ttl_trigger_enabled_;
    std::vector<double> sequenceX_;

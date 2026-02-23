@@ -185,7 +185,7 @@ private:
    // for polygons
    std::vector<std::pair<double,double> > polygons_;
    long polygonRepetitions_;
-   bool ring_buffer_supported_;
+   bool hasRingBuffer_;
 
    unsigned char laser_side_;  // code for corresponding laser line: 0 for none, 1 for side0, 2 for side1
    bool laserTTLenabled_;      // whether it has MM_LASER_TTL module

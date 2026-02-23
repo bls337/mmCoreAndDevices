@@ -40,8 +40,8 @@ CDACXYStage::CDACXYStage(const char* name) :
 	minvoltsX_(0.0),
 	maxvoltsY_(0.0), // Y axis limits
 	minvoltsY_(0.0),
-	ring_buffer_supported_(false),
-	ring_buffer_capacity_(0),
+	hasRingBuffer_(false),
+	ringBufferSize_(0),
 	ttl_trigger_supported_(false),
 	ttl_trigger_enabled_(false),
 	umToMvX_(1),
@@ -296,15 +296,15 @@ int CDACXYStage::Initialize()
 		// get the number of ring buffer positions from the BU X output
 		std::string rb_define = hub_->GetDefineString(build, "RING BUFFER");
 
-		ring_buffer_capacity_ = 0;
+		ringBufferSize_ = 0;
 		if (rb_define.size() > 12)
 		{
-			ring_buffer_capacity_ = atol(rb_define.substr(11).c_str());
+			ringBufferSize_ = atol(rb_define.substr(11).c_str());
 		}
 
-		if (ring_buffer_capacity_ != 0)
+		if (ringBufferSize_ != 0)
 		{
-			ring_buffer_supported_ = true;
+			hasRingBuffer_ = true;
 
 			pAct = new CPropertyAction(this, &CDACXYStage::OnRBMode);
 			CreateProperty(g_RB_ModePropertyName, g_RB_OnePoint_1, MM::String, false, pAct);
@@ -338,7 +338,7 @@ int CDACXYStage::Initialize()
 			ttl_trigger_enabled_ = false;
 		}
 
-		if ((hub_->IsDefinePresent(build, "IN0_INT")) && ring_buffer_supported_)
+		if ((hub_->IsDefinePresent(build, "IN0_INT")) && hasRingBuffer_)
 		{
 			ttl_trigger_supported_ = true;
 			

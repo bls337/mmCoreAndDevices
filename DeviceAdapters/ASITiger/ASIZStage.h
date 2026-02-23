@@ -56,7 +56,7 @@ public:
    bool IsContinuousFocusDrive() const {return false;}  // TODO: figure out what this means and if it's accurate
 
    int IsStageSequenceable(bool& isSequenceable) const { isSequenceable = ttl_trigger_enabled_; return DEVICE_OK; }
-   int GetStageSequenceMaxLength(long& nrEvents) const { nrEvents = ring_buffer_capacity_; return DEVICE_OK; }
+   int GetStageSequenceMaxLength(long& nrEvents) const { nrEvents = ringBufferSize_; return DEVICE_OK; }
 
    int StartStageSequence();
    int StopStageSequence();
@@ -139,7 +139,7 @@ private:
     bool speedTruth_;
 
     double lastSpeed_;
-    long ring_buffer_capacity_;
+    long ringBufferSize_;
     std::vector<double> sequence_;
 };
 
