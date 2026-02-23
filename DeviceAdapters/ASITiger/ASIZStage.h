@@ -53,9 +53,9 @@ public:
    int SetRelativePositionUm(double d);
    int GetLimits(double& min, double& max);
    int SetOrigin();
-   int 	Move (double velocity);
+   int Move(double velocity);
 
-   bool IsContinuousFocusDrive() const {return false;}  // todo figure out what this means and if it's accurate
+   bool IsContinuousFocusDrive() const {return false;}  // TODO: figure out what this means and if it's accurate
 
    int IsStageSequenceable(bool& isSequenceable) const { isSequenceable = ttl_trigger_enabled_; return DEVICE_OK; }
    int GetStageSequenceMaxLength(long& nrEvents) const { nrEvents = ring_buffer_capacity_; return DEVICE_OK; }
@@ -122,6 +122,10 @@ public:
    int OnTTLInputMode         (MM::PropertyBase* pProp, MM::ActionType eAct);
 
 private:
+
+    // Properties
+    void CreateSingleAxisRiseTimeProperty();
+
    double unitMult_;
    double stepSizeUm_;
    std::string axisLetter_;

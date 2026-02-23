@@ -315,7 +315,10 @@ int CZStage::Initialize()
       if (FirmwareVersionAtLeast(3.55)) {
          AddAllowedValue(g_SAPatternPropertyName, g_SAPattern_4);
       }
-      UpdateProperty(g_SAPatternPropertyName);
+      // rise time is used by variable waveforms
+      if (FirmwareVersionAtLeast(3.55)) {
+          CreateSingleAxisRiseTimeProperty();
+      }
       // generates a set of additional advanced properties that are rarely used
       pAct = new CPropertyAction (this, &CZStage::OnSAAdvanced);
       CreateProperty(g_AdvancedSAPropertiesPropertyName, g_NoState, MM::String, false, pAct);
@@ -1988,6 +1991,36 @@ int CZStage::OnSATTLPol(MM::PropertyBase* pProp, MM::ActionType eAct)
       RETURN_ON_MM_ERROR ( hub_->QueryCommandVerify(command.str(), ":A") );
    }
    return DEVICE_OK;
+}
+
+void CZStage::CreateSingleAxisRiseTimeProperty() {
+    const std::string propertyName = "SingleAxisRiseTime(ms)";
+
+    const std::string query = "OS " + axisLetter_ + "?";
+    const std::string command = "OS " + axisLetter_ + "=";
+    const std::string response = "OS " + axisLetter_ + "=";
+
+    CreateFloatProperty(
+        propertyName.c_str(), 0.0, false,
+        new MM::ActionLambda([this, query, command, response](MM::PropertyBase* pProp, MM::ActionType eAct) {
+            long tmp = 0;
+            if (eAct == MM::BeforeGet) {
+                if (!refreshProps_ && initialized_) {
+                    return DEVICE_OK;
+                }
+                RETURN_ON_MM_ERROR(hub_->QueryCommandVerify(query, response));
+                RETURN_ON_MM_ERROR(hub_->ParseAnswerAfterEquals(tmp));
+                if (!pProp->Set(tmp)) {
+                    return DEVICE_INVALID_PROPERTY_VALUE;
+                }
+            } else if (eAct == MM::AfterSet) {
+                pProp->Get(tmp);
+                RETURN_ON_MM_ERROR(hub_->QueryCommandVerify(command + std::to_string(tmp), ":A"));
+            }
+            return DEVICE_OK;
+        }
+    ));
+    UpdateProperty(propertyName.c_str());
 }
 
 int CZStage::OnRBMode(MM::PropertyBase* pProp, MM::ActionType eAct)
