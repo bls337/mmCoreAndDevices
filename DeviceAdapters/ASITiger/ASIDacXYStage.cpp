@@ -254,7 +254,12 @@ int CDACXYStage::Initialize()
 		AddAllowedValue(g_SAPatternXPropertyName, g_SAPattern_0);
 		AddAllowedValue(g_SAPatternXPropertyName, g_SAPattern_1);
 		AddAllowedValue(g_SAPatternXPropertyName, g_SAPattern_2);
-		AddAllowedValue(g_SAPatternXPropertyName, g_SAPattern_3);
+		if (FirmwareVersionAtLeast(3.14)) {
+			AddAllowedValue(g_SAPatternXPropertyName, g_SAPattern_3);
+		}
+		if (FirmwareVersionAtLeast(3.55)) {
+			AddAllowedValue(g_SAPatternXPropertyName, g_SAPattern_4);
+		}
 		UpdateProperty(g_SAPatternXPropertyName);
 
 		pAct = new CPropertyAction(this, &CDACXYStage::OnSAPatternY);
@@ -262,7 +267,12 @@ int CDACXYStage::Initialize()
 		AddAllowedValue(g_SAPatternYPropertyName, g_SAPattern_0);
 		AddAllowedValue(g_SAPatternYPropertyName, g_SAPattern_1);
 		AddAllowedValue(g_SAPatternYPropertyName, g_SAPattern_2);
-		AddAllowedValue(g_SAPatternYPropertyName, g_SAPattern_3);
+		if (FirmwareVersionAtLeast(3.14)) {
+			AddAllowedValue(g_SAPatternYPropertyName, g_SAPattern_3);
+		}
+		if (FirmwareVersionAtLeast(3.55)) {
+			AddAllowedValue(g_SAPatternYPropertyName, g_SAPattern_4);
+		}
 		UpdateProperty(g_SAPatternYPropertyName);
 
 		// generates a set of additional advanced properties that are rarely used

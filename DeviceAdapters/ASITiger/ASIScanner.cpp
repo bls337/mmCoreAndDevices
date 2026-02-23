@@ -299,10 +299,12 @@ int CScanner::Initialize()
    AddAllowedValue(g_SAPatternXPropertyName, g_SAPattern_0, 0);
    AddAllowedValue(g_SAPatternXPropertyName, g_SAPattern_1, 1);
    AddAllowedValue(g_SAPatternXPropertyName, g_SAPattern_2, 2);
-   if (FirmwareVersionAtLeast(3.14))
-	   {	//sin pattern was implemeted much later atleast firmware 3/14 needed
-		   AddAllowedValue(g_SAPatternXPropertyName, g_SAPattern_3, 3);
-	   }
+   if (FirmwareVersionAtLeast(3.14)) {
+      AddAllowedValue(g_SAPatternXPropertyName, g_SAPattern_3, 3);
+   }
+   if (FirmwareVersionAtLeast(3.55)) {
+      AddAllowedValue(g_SAPatternXPropertyName, g_SAPattern_4, 4);
+   }
    UpdateProperty(g_SAPatternXPropertyName);
    pAct = new CPropertyAction (this, &CScanner::OnSAAmplitudeY);
    CreateProperty(g_ScannerSAAmplitudeYPropertyName, "0", MM::Float, false, pAct);
@@ -325,10 +327,12 @@ int CScanner::Initialize()
    AddAllowedValue(g_SAPatternYPropertyName, g_SAPattern_0, 0);
    AddAllowedValue(g_SAPatternYPropertyName, g_SAPattern_1, 1);
    AddAllowedValue(g_SAPatternYPropertyName, g_SAPattern_2, 2);
-   if (FirmwareVersionAtLeast(3.14))
-	   {	//sin pattern was implemeted much later atleast firmware 3/14 needed
-		   AddAllowedValue(g_SAPatternYPropertyName, g_SAPattern_3, 3);
-	   }
+   if (FirmwareVersionAtLeast(3.14)) {
+      AddAllowedValue(g_SAPatternYPropertyName, g_SAPattern_3, 3);
+   }
+   if (FirmwareVersionAtLeast(3.55)) {
+      AddAllowedValue(g_SAPatternYPropertyName, g_SAPattern_4, 4);
+   }
    UpdateProperty(g_SAPatternYPropertyName);
 
    // generates a set of additional advanced properties that are rarely used

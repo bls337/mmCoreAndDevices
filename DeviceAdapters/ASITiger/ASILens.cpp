@@ -244,10 +244,12 @@ int CLens::Initialize()
       AddAllowedValue(g_SAPatternPropertyName, g_SAPattern_0);
       AddAllowedValue(g_SAPatternPropertyName, g_SAPattern_1);
       AddAllowedValue(g_SAPatternPropertyName, g_SAPattern_2);
-	  if (FirmwareVersionAtLeast(3.14))
-	   {	//sin pattern was implemeted much later atleast firmware 3.14 needed
-		   AddAllowedValue(g_SAPatternPropertyName, g_SAPattern_3);
-	   }
+      if (FirmwareVersionAtLeast(3.14)) {
+         AddAllowedValue(g_SAPatternPropertyName, g_SAPattern_3);
+      }
+      if (FirmwareVersionAtLeast(3.55)) {
+         AddAllowedValue(g_SAPatternPropertyName, g_SAPattern_4);
+      }
       UpdateProperty(g_SAPatternPropertyName);
       // generates a set of additional advanced properties that are rarely used
       pAct = new CPropertyAction (this, &CLens::OnSAAdvanced);
