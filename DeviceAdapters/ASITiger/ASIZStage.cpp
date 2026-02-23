@@ -42,7 +42,7 @@ CZStage::CZStage(const char* name) :
     unitMult_(g_StageDefaultUnitMult), // later will try to read actual setting
     stepSizeUm_(g_StageMinStepSize),   // we'll use 1 nm as our smallest possible step size, this is somewhat arbitrary and doesn't change during the program
     advancedPropsEnabled_(false),
-    ring_buffer_supported_(false),
+    hasRingBuffer_(false),
     ttl_trigger_supported_(false),
     ttl_trigger_enabled_(false),
     runningFastSequence_(false),
@@ -338,7 +338,7 @@ int CZStage::Initialize()
 
       if (ring_buffer_capacity_ != 0)
       {
-         ring_buffer_supported_ = true;
+         hasRingBuffer_ = true;
 
          pAct = new CPropertyAction (this, &CZStage::OnRBMode);
          CreateProperty(g_RB_ModePropertyName, g_RB_OnePoint_1, MM::String, false, pAct);
@@ -381,7 +381,7 @@ int CZStage::Initialize()
    }
 
    if (FirmwareVersionAtLeast(3.09) && (hub_->IsDefinePresent(build, "IN0_INT"))
-         && ring_buffer_supported_)
+         && hasRingBuffer_)
    {
       ttl_trigger_supported_ = true;
 

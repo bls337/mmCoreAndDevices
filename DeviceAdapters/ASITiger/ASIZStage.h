@@ -132,7 +132,7 @@ private:
     double stepSizeUm_;
 
     bool advancedPropsEnabled_;
-    bool ring_buffer_supported_;
+    bool hasRingBuffer_;
     bool ttl_trigger_supported_;
     bool ttl_trigger_enabled_;
     bool runningFastSequence_;

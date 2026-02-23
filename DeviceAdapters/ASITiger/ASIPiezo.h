@@ -117,7 +117,7 @@ private:
    double unitMult_;
    double stepSizeUm_;
    std::string axisLetter_;
-   bool ring_buffer_supported_;
+   bool hasRingBuffer_;
    long ring_buffer_capacity_;
    bool ttl_trigger_supported_;
    bool ttl_trigger_enabled_;

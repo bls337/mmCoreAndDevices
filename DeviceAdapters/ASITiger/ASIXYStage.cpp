@@ -52,7 +52,7 @@ CXYStage::CXYStage(const char* name) :
    speedTruth_(false),
    lastSpeedX_(1.0),
    lastSpeedY_(1.0),
-   ring_buffer_supported_(false),
+   hasRingBuffer_(false),
    ring_buffer_capacity_(0),
    ttl_trigger_supported_(false),
    ttl_trigger_enabled_(false)
@@ -339,7 +339,7 @@ int CXYStage::Initialize()
 
       if (ring_buffer_capacity_ != 0)
       {
-         ring_buffer_supported_ = true;
+         hasRingBuffer_ = true;
 
          pAct = new CPropertyAction (this, &CXYStage::OnRBMode);
          CreateProperty(g_RB_ModePropertyName, g_RB_OnePoint_1, MM::String, false, pAct);
@@ -376,7 +376,7 @@ int CXYStage::Initialize()
    }
 
    if (FirmwareVersionAtLeast(3.09) && (hub_->IsDefinePresent(build, "IN0_INT"))
-         && ring_buffer_supported_)
+         && hasRingBuffer_)
    {
       ttl_trigger_supported_ = true;
    }
