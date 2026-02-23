@@ -1790,10 +1790,12 @@ int CScanner::OnSAPatternX(MM::PropertyBase* pProp, MM::ActionType eAct)
          case 1: success = pProp->Set(g_SAPattern_1); break;
          case 2: success = pProp->Set(g_SAPattern_2); break;
 		 case 3: success = pProp->Set(g_SAPattern_3); break;
+         case 4: success = pProp->Set(g_SAPattern_4); break;
          default:success = 0;                      break;
       }
-      if (!success)
-         return DEVICE_INVALID_PROPERTY_VALUE;
+      if (!success) {
+          return DEVICE_INVALID_PROPERTY_VALUE;
+      }
       saStateX_.pattern = tmp;
    }
    else if (eAct == MM::AfterSet) {
@@ -1809,7 +1811,8 @@ int CScanner::OnSAPatternX(MM::PropertyBase* pProp, MM::ActionType eAct)
          RETURN_ON_MM_ERROR ( hub_->ParseAnswerAfterEquals(current) );
          current = current & (~(long)(BIT2|BIT1|BIT0));  // set lowest 3 bits to zero
          tmp += current;
-         command.str(""); command << "SAP " << axisLetterX_ << "=" << tmp;
+         command.str("");
+         command << "SAP " << axisLetterX_ << "=" << tmp;
          RETURN_ON_MM_ERROR ( hub_->QueryCommandVerify(command.str(), ":A") );
          saStateX_.pattern = tmp;
       }
@@ -1962,10 +1965,12 @@ int CScanner::OnSAPatternY(MM::PropertyBase* pProp, MM::ActionType eAct)
          case 1: success = pProp->Set(g_SAPattern_1); break;
          case 2: success = pProp->Set(g_SAPattern_2); break;
          case 3: success = pProp->Set(g_SAPattern_3); break;
+         case 4: success = pProp->Set(g_SAPattern_4); break;
 		 default:success = 0;                      break;
       }
-      if (!success)
-         return DEVICE_INVALID_PROPERTY_VALUE;
+      if (!success) {
+          return DEVICE_INVALID_PROPERTY_VALUE;
+      }
       saStateY_.pattern = tmp;
    }
    else if (eAct == MM::AfterSet) {
@@ -1981,7 +1986,8 @@ int CScanner::OnSAPatternY(MM::PropertyBase* pProp, MM::ActionType eAct)
          RETURN_ON_MM_ERROR ( hub_->ParseAnswerAfterEquals(current) );
          current = current & (~(long)(BIT2|BIT1|BIT0));  // set lowest 3 bits to zero
          tmp += current;
-         command.str(""); command << "SAP " << axisLetterY_ << "=" << tmp;
+         command.str("");
+         command << "SAP " << axisLetterY_ << "=" << tmp;
          RETURN_ON_MM_ERROR ( hub_->QueryCommandVerify(command.str(), ":A") );
          saStateY_.pattern = tmp;
       }
