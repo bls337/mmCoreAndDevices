@@ -19,8 +19,6 @@
 //
 // AUTHOR:        Jon Daniels (jon@asiimaging.com) 09/2013
 //
-// BASED ON:      ASIStage.h and others
-//
 
 #ifndef ASIZSTAGE_H
 #define ASIZSTAGE_H
@@ -34,7 +32,7 @@ class CZStage : public ASIPeripheralBase<CStageBase, CZStage>
 public:
    CZStage(const char* name);
    ~CZStage() { }
-  
+
    // Device API
    int Initialize();
    bool Busy();
@@ -122,25 +120,27 @@ public:
    int OnTTLInputMode         (MM::PropertyBase* pProp, MM::ActionType eAct);
 
 private:
+    int OnSaveJoystickSettings();
 
     // Properties
     void CreateSingleAxisRiseTimeProperty();
 
-   double unitMult_;
-   double stepSizeUm_;
-   std::string axisLetter_;
-   bool advancedPropsEnabled_;
-   bool speedTruth_;
-   double lastSpeed_;
-   bool ring_buffer_supported_;
-   long ring_buffer_capacity_;
-   bool ttl_trigger_supported_;
-   bool ttl_trigger_enabled_;
-   bool runningFastSequence_;
-   std::vector<double> sequence_;
-   unsigned int axisIndex_;
+    std::string axisLetter_;
+    unsigned int axisIndex_;
 
-   int OnSaveJoystickSettings();
+    double unitMult_;
+    double stepSizeUm_;
+
+    bool advancedPropsEnabled_;
+    bool ring_buffer_supported_;
+    bool ttl_trigger_supported_;
+    bool ttl_trigger_enabled_;
+    bool runningFastSequence_;
+    bool speedTruth_;
+
+    double lastSpeed_;
+    long ring_buffer_capacity_;
+    std::vector<double> sequence_;
 };
 
 #endif // ASIZSTAGE_H
