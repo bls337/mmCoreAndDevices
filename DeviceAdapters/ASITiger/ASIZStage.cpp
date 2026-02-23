@@ -2024,6 +2024,7 @@ void CZStage::CreateSingleAxisRiseTimeProperty() {
             return DEVICE_OK;
         }
     ));
+
     UpdateProperty(propertyName.c_str());
 }
 
